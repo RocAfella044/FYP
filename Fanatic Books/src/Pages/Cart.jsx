@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
 const BookCartPage = () => {
@@ -5,17 +6,47 @@ const BookCartPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/cart/')
-      .then((response) => response.json())
-      .then((data) => {
-        setCart(data);
+    const fetchCartData = async () => {
+      const accessToken = localStorage.getItem('access_token');
+
+      if (!accessToken) {
+        console.error('No access token found. User is not authenticated.');
+        setError('User not authenticated');
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching cart:', error);
+        return;
+      }
+
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/cart/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`, // ✅ Send token properly
+          },
+        });
+
+        setCart(response.data);
+      } catch (error) {
+        console.error(
+          'Error fetching cart:',
+          error.response?.data || error.message
+        );
+        setError(error.response?.data || 'Error fetching cart');
+
+        // 🔄 If the token is expired (401 Unauthorized), refresh it and retry
+        if (error.response?.status === 401) {
+          console.log('Token expired. Attempting to refresh...');
+          await refreshAccessToken();
+          await fetchCartData(); // Retry after refreshing token
+        }
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchCartData();
   }, []);
+
+  console.log(cart);
 
   const updateQuantity = (id, amount) => {
     const updatedCart = cart.map((item) =>
@@ -37,7 +68,7 @@ const BookCartPage = () => {
 
   const removeItem = (id) => {
     setCart(cart.filter((item) => item.id !== id));
-    fetch(`http://127.0.0.1:8000/api/cart/remove/${id}/`, {
+    fetch(``, {
       method: 'DELETE',
     });
   };

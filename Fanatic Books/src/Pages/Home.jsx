@@ -5,13 +5,27 @@ import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [trendingBooks, setTrendingBooks] = useState([]);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+
   useEffect(() => {
     axios
       .get('http://localhost:8000/api/books/')
       .then((response) => setBooks(response.data))
       .catch((error) => console.error('Error fetching books:', error));
+
+    axios
+      .get('http://localhost:8000/api/new-arrivals/')
+      .then((response) => setNewArrivals(response.data))
+      .catch((error) => console.error('Error fetching new arrivals:', error));
+
+    axios
+      .get('http://localhost:8000/api/trending/') // Change this from /api/trending-books/
+      .then((response) => setTrendingBooks(response.data))
+      .catch((error) => console.error('Error fetching trending books:', error));
+
   }, []);
 
   return (
@@ -28,7 +42,7 @@ const Home = () => {
           contribute to the ever-evolving library of stories.
         </p>
         <div className="mt-6 flex justify-center">
-          <input 
+          <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             type="text"
@@ -36,7 +50,7 @@ const Home = () => {
             className="w-2/3 md:w-1/3 p-3 border text-black border-black rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
           />
           <button
-            onClick={() => navigate (`/search/${search}`)}
+            onClick={() => navigate(`/search/${search}`)}
             className="bg-purple-700 text-white px-6 rounded-r-lg hover:bg-purple-800"
           >
             Search
@@ -44,6 +58,7 @@ const Home = () => {
         </div>
       </header>
 
+      {/* Our Best Picks Section */}
       <section className="py-16">
         <h2 className="text-3xl md:text-4xl font-semibold text-white">
           Our Best Picks
@@ -53,6 +68,34 @@ const Home = () => {
             books.map((book) => <Bookcard book={book} key={book.id} />)
           ) : (
             <p className="text-gray-500">No books available.</p>
+          )}
+        </div>
+      </section>
+
+      {/* New Arrivals Section */}
+      <section className="py-16">
+        <h2 className="text-3xl md:text-4xl font-semibold text-white">
+          New Arrivals
+        </h2>
+        <div className="mt-8 flex flex-wrap justify-center gap-8 px-4">
+          {newArrivals.length > 0 ? (
+            newArrivals.map((book) => <Bookcard book={book} key={book.id} />)
+          ) : (
+            <p className="text-gray-500">No new arrivals available.</p>
+          )}
+        </div>
+      </section>
+
+      {/* Trending Books Section */}
+      <section className="py-16">
+        <h2 className="text-3xl md:text-4xl font-semibold text-white">
+          Trending Books
+        </h2>
+        <div className="mt-8 flex flex-wrap justify-center gap-8 px-4">
+          {trendingBooks.length > 0 ? (
+            trendingBooks.map((book) => <Bookcard book={book} key={book.id} />)
+          ) : (
+            <p className="text-gray-500">No trending books available.</p>
           )}
         </div>
       </section>

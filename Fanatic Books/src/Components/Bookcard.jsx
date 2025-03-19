@@ -19,19 +19,14 @@ const Bookcard = ({book}) => {
 
         <div className="p-4">
           <h3 className="text-lg font-bold text-gray-700">{book.book_name}</h3>
-          <p className="text-sm text-gray-500">{book.book_desc}</p>
+          <p className="text-sm text-gray-500 line-clamp-2"> {book.book_desc}</p>
 
-          {/* Display Book Genre */}
-          {book.book_genre && (
-            <p className="text-xs text-gray-600 mt-1">
-              <strong>Genre:</strong> {book.book_genre}
-            </p>
-          )}
+        
 
           {/* Display Book Price */}
           {book.book_price !== null && (
             <p className="text-sm text-purple-700 font-semibold mt-2">
-              Price: ${book.book_price}
+              Price: NPR {book.book_price}
             </p>
           )}
         </div>

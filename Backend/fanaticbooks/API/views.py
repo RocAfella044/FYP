@@ -17,49 +17,72 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Contact
 from .serializers import ContactSerializer
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from .models import Book, Cart
+from .models import Book, Cart, Trending
 from .serializers import CartSerializer
+from rest_framework.viewsets import ModelViewSet
+from .serializers import CartSerializer
+from .serializers import TrendingSerializer
 
-class CartListView(generics.ListAPIView):
+class CartViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
-    def get_queryset(self):
-        return Cart.objects.filter(user=self.request.user)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request  
+        return context
 
-class AddToCartView(APIView):
-    def post(self, request):
-        book_id = request.data.get("book_id")
-        quantity = request.data.get("quantity", 1)
 
-        book = get_object_or_404(Book, id=book_id)
-        cart_item, created = Cart.objects.get_or_create(user=request.user, book=book)
+    
 
-        if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
+#     serializer_class = CartSerializer
 
-        return Response({"message": "Book added to cart"}, status=status.HTTP_201_CREATED)
+#     def get_queryset(self):
+#         return Cart.objects.filter(user=self.request.user)
 
-class UpdateCartView(APIView):
-    def patch(self, request, cart_id):
-        cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
-        cart_item.quantity = request.data.get("quantity", cart_item.quantity)
-        cart_item.save()
+# class AddToCartView(APIView):
+#     def post(self, request):
+#         book_id = request.data.get("book_id")
+#         quantity = request.data.get("quantity", 1)
 
-        return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)
+#         book = get_object_or_404(Book, id=book_id)
+#         cart_item, created = Cart.objects.get_or_create(user=request.user, book=book)
 
-class RemoveFromCartView(APIView):
-    def delete(self, request, cart_id):
-        cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
-        cart_item.delete()
+#         if not created:
+#             cart_item.quantity += quantity
+#             cart_item.save()
 
-        return Response({"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT)
+#         return Response({"message": "Book added to cart"}, status=status.HTTP_201_CREATED)
 
+# class UpdateCartView(APIView):
+#     def patch(self, request, cart_id):
+#         cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
+#         cart_item.quantity = request.data.get("quantity", cart_item.quantity)
+#         cart_item.save()
+
+#         return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)
+
+# class RemoveFromCartView(APIView):
+#     def delete(self, request, cart_id):
+#         cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
+#         cart_item.delete()
+
+#         return Response({"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT)
+
+class Getbook(APIView):
+    def get(self,request, book_id):
+        try:
+            book = Book.objects.filter(id=book_id)
+            serializer = BookSerializer(book, many=True, context={'request': request})
+            return Response(serializer.data)
+        except Exception as ex:
+            return Response({"error": str(ex)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @csrf_exempt
@@ -220,3 +243,31 @@ class ContactCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save()
+        
+from .models import NewArrival
+from .serializers import NewArrivalSerializer
+
+class NewArrivalListView(generics.ListAPIView):
+    queryset = NewArrival.objects.all().order_by('-arrival_date')
+    serializer_class = NewArrivalSerializer
+
+class AddNewArrivalView(APIView):
+    def post(self, request):
+        serializer = NewArrivalSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "New Arrival added!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TrendingListView(generics.ListAPIView):
+    queryset = Trending.objects.all().order_by('-arrival_date')
+    serializer_class = TrendingSerializer
+
+class AddTrendingView(APIView):
+    def post(self, request):
+        serializer = TrendingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Trending added!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

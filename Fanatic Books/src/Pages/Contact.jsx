@@ -39,7 +39,7 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-white flex items-center justify-center p-6">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-        <h1 className="text-3xl font-bold text-center mb-6">Contact Us</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Feedback</h1>
         {success && (
           <p className="text-center mb-4 text-green-600">{success}</p>
         )}

@@ -10,7 +10,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/login/', {
+      const response = await fetch('http://127.0.0.1:8000/auth/jwt/create/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -19,7 +19,9 @@ export default function LoginPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Login failed');
 
-      alert('Login successful!');
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+
       window.location.href = '/';
     } catch (err) {
       setError(err.message);
@@ -50,6 +52,7 @@ export default function LoginPage() {
             className="w-full p-2 border border-gray-300 rounded-md"
             required
           />
+          
           <button
             type="submit"
             className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
@@ -65,14 +68,7 @@ export default function LoginPage() {
               Sign Up
             </a>
           </p>
-          <p className="text-gray-600">
-            <a
-              href="/forgot-password"
-              className="text-purple-600 hover:underline"
-            >
-              Forgot Password?
-            </a>
-          </p>
+          
         </div>
       </div>
     </div>

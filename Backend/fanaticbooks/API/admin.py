@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Book, Genre, Contact, Cart  # Ensure Cart model exists
+from .models import Book, Genre, Contact, Cart,  NewArrival, Trending  # Ensure Cart model exists
 
 # Custom Admin classes (optional, but improves admin interface)
 class BookAdmin(admin.ModelAdmin):
@@ -21,12 +21,22 @@ class CartAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "book__book_name")
     list_filter = ("user",)
 
+class NewArrivalAdmin(admin.ModelAdmin):
+    list_display = ("book_name", "book_genre", "book_price")
+    search_fields = ("book_name", "book_genre__book_genre")
+    list_filter = ("book_genre",)
+class TrendingAdmin(admin.ModelAdmin):
+    list_display = ("book_name", "book_genre", "book_price")
+    search_fields = ("book_name", "book_genre__book_genre")
+    list_filter = ("book_genre",)
 # Register models with admin panel, handling duplicates
 models_with_admin = [
     (Book, BookAdmin),
     (Genre, GenreAdmin),
     (Contact, ContactAdmin),
     (Cart, CartAdmin),
+    (NewArrival, NewArrivalAdmin),
+    (Trending, TrendingAdmin),
 ]
 
 for model, admin_class in models_with_admin:
@@ -34,3 +44,7 @@ for model, admin_class in models_with_admin:
         admin.site.register(model, admin_class)
     except admin.sites.AlreadyRegistered:
         pass  # Prevent duplicate registration errors
+
+
+    
+    
