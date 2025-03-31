@@ -29,6 +29,11 @@ class TrendingAdmin(admin.ModelAdmin):
     list_display = ("book_name", "book_genre", "book_price")
     search_fields = ("book_name", "book_genre__book_genre")
     list_filter = ("book_genre",)
+
+class MiscellaneousAdmin(admin.ModelAdmin):
+    list_display = ("book_name", "book_genre", "book_price")
+    search_fields = ("book_name", "book_genre__book_genre")
+    list_filter = ("book_genre",)
 # Register models with admin panel, handling duplicates
 models_with_admin = [
     (Book, BookAdmin),
@@ -37,6 +42,7 @@ models_with_admin = [
     (Cart, CartAdmin),
     (NewArrival, NewArrivalAdmin),
     (Trending, TrendingAdmin),
+   
 ]
 
 for model, admin_class in models_with_admin:

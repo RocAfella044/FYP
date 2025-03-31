@@ -1,8 +1,8 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-const Bookcard = ({book}) => {
+const Bookcard = ({book, type}) => {
   return (
-    <Link to={`/book/${book.id}`}>
+    <Link to={`/book/${type}/${book.id}`}>
       <div
         key={book.id}
         className="w-60 bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform"

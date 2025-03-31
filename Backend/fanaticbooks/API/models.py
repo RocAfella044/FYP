@@ -29,7 +29,7 @@ class Contact(models.Model):
         return f'Message from {self.name}'
 
 class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
@@ -59,3 +59,4 @@ class Trending(models.Model):
 
     def __str__(self):
         return self.book_name
+    

@@ -81,14 +81,16 @@ const Navbar = () => {
 
         {/* User Actions (Login/Logout) */}
         <div className="flex gap-5 items-center justify-end">
-          <Link to="/notification">
+          <Link to="/notification" className="hover:text-purple-600">
+            {' '}
+            {/* Added hover effect here */}
             <CiBellOn size={30} />
           </Link>
 
           {token ? (
             <button
               onClick={handleLogout}
-              className="'text-purple-500' : 'hover:text-purple-600'"
+              className="hover:text-purple-600 text-white" // Added hover effect for the Logout button
             >
               Logout
             </button>

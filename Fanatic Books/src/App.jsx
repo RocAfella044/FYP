@@ -11,12 +11,12 @@ import Notification from './Pages/Notification'
 import Applayout from './Applayout'
 import Register from './Pages/Register'
 import Singlebook from './Pages/Singlebook'
-
+import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   return (
     <BrowserRouter>
-      
+       <ToastContainer />
       <Routes>
         <Route path="/" element={<Applayout />} >
         <Route index element={<Home />} />
@@ -24,7 +24,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/book/:id" element={<Singlebook/>} />
+        <Route path="/book/:type/:id" element={<Singlebook/>} />
         <Route path="/search/:q" element={<Singlebook/>} />
       
         </Route>

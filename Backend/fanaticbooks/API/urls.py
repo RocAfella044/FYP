@@ -2,12 +2,13 @@ from django.urls import path, re_path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from django.conf import settings
 from .views import book_list
-from .views import user_signup, user_login,message, Contact
+from .views import user_signup, user_login,message
 from .views import ContactCreateView
 from .views import NewArrivalListView, AddNewArrivalView, TrendingListView, Getbook
 from rest_framework.routers import DefaultRouter
 from .views import CartViewSet
 from .views import AddTrendingView  
+from .views import CartItemDeleteView
 
 
 router = DefaultRouter()
@@ -21,6 +22,7 @@ urlpatterns = [
     path("login/", user_login, name="login"),
     path('message',message,name="message"),
     path('contact/', ContactCreateView.as_view(), name='contact-create'),
+    path('cart/<int:cart_id>/', CartItemDeleteView.as_view(), name='cart-item-delete'),
     # path('api/cart/', CartListView.as_view(), name="cart-list"),
     # path('api/cart/add/', AddToCartView.as_view(), name="cart-add"),
     # path('api/cart/update/<int:cart_id>/', UpdateCartView.as_view(), name="cart-update"),
@@ -39,4 +41,3 @@ urlpatterns = [
 ]
 
 urlpatterns += router.urls
-

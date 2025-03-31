@@ -29,7 +29,7 @@ const Shop = () => {
         <div className="mt-8 flex flex-wrap justify-center gap-8 px-4">
           {books.length > 0 ? (
             books.map((book) => (
-              <Bookcard book={book}/>
+              <Bookcard key={book.id} type={"book"} book={book}/>
             ))
           ) : (
             <p className="text-gray-300">No books available at the moment.</p>

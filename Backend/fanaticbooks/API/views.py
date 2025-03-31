@@ -27,7 +27,6 @@ from .serializers import CartSerializer
 from rest_framework.viewsets import ModelViewSet
 from .serializers import CartSerializer
 from .serializers import TrendingSerializer
-
 class CartViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Cart.objects.all()
@@ -35,8 +34,19 @@ class CartViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["request"] = self.request  
+        context["request"] = self.request  # Include request context
         return context
+    
+# views.py
+class CartItemDeleteView(APIView):
+    def delete(self, request, cart_id):
+        try:
+            cart_item = Cart.objects.get(id=cart_id, user=request.user)
+            cart_item.delete()
+            return Response({"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT)
+        except Cart.DoesNotExist:
+            return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 
     
@@ -271,3 +281,4 @@ class AddTrendingView(APIView):
             serializer.save()
             return Response({"message": "Trending added!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

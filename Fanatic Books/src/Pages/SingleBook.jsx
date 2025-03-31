@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+
 
 const SingleBook = () => {
   const { id } = useParams();
@@ -47,6 +49,7 @@ const SingleBook = () => {
       );
 
       console.log('Added to cart:', response.data);
+      toast.success('Book added to cart successfully!');
     } catch (error) {
       console.error(
         'Error adding to cart:',
@@ -99,12 +102,12 @@ const SingleBook = () => {
 
           <div className="flex gap-4 mt-4">
             <button
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md"
+              className="bg-black-600 border border-purple-600 hover:bg-purple-900 text-purple-400 px-6 py-2 rounded-md"
               onClick={() => addToCart(book.id)}
             >
               Add to Cart
             </button>
-            <button className="border border-purple-600 text-purple-400 hover:bg-purple-900/20 px-6 py-2 rounded-md">
+            <button className="border border-purple-600 text-purple-400 hover:bg-purple-900 px-6 py-2 rounded-md">
               Add to Wishlist
             </button>
           </div>
