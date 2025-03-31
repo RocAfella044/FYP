@@ -3,6 +3,7 @@ import axios from 'axios';
 import Bookcard from '../Components/Bookcard';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import HeroSection from '../Components/Hero';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
@@ -36,41 +37,10 @@ const Home = () => {
   }, []);
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-purple-200">
-      <header className="relative py-24 text-white">
-        <div className="absolute inset-0 bg-purple-600/10 backdrop-blur-sm" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200">
-            The Book Lover's Dreamland Awaits!
-          </h1>
-          <p className="mt-6 text-xl md:text-2xl text-purple-100 max-w-3xl mx-auto">
-            Welcome to the ultimate book lover's paradise! Join our community
-            and contribute to the ever-evolving library of stories.
-          </p>
-          <div className="mt-12 flex justify-center max-w-2xl mx-auto">
-            <div className="relative w-full">
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                type="text"
-                placeholder="Search for your next adventure..."
-                className="w-full px-6 py-4 rounded-full bg-white/10 backdrop-blur-sm 
-                  border border-white/20 text-white placeholder-white/60
-                  focus:outline-none focus:ring-2 focus:ring-purple-400 focus:bg-white/20
-                  transition-all duration-200"
-              />
-              <button
-                onClick={() => navigate(`/search/${search}`)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 
-                  bg-purple-500 hover:bg-purple-600 p-3 rounded-full
-                  transition-colors duration-200"
-              >
-                <Search size={20} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    
+    <HeroSection/>  
 
       {/* Our Best Picks Section */}
       <section className="py-16 relative">

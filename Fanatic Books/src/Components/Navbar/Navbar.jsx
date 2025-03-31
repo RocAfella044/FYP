@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { CiBellOn } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
+import Searchbar from '../Searchbar';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -81,6 +82,9 @@ const Navbar = () => {
 
         {/* User Actions (Login/Logout) */}
         <div className="flex gap-5 items-center justify-end">
+          <div>
+            <Searchbar />
+          </div>
           <Link to="/notification" className="hover:text-purple-600">
             {' '}
             {/* Added hover effect here */}

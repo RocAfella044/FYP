@@ -5,12 +5,12 @@ const slides = [
   {
     id: 1,
     text: 'Discover a world of books curated just for you.',
-    image: 'https://source.unsplash.com/1600x900/?bookshelf',
+    image: './images/eer.webp',
   },
   {
     id: 2,
     text: 'Join a passionate community of book lovers!',
-    image: 'https://source.unsplash.com/1600x900/?reading',
+    image: './images/ww.jpg',
   },
   {
     id: 3,
@@ -68,7 +68,7 @@ const AboutUs = () => {
       </header>
 
       {/* Auto-Slider Section */}
-      <div className="relative overflow-hidden h-64 flex justify-center items-center">
+      <div className="relative overflow-hidden h-96 flex justify-center items-center">
         <div
           className="absolute w-full h-full flex transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -79,9 +79,9 @@ const AboutUs = () => {
               className="w-full flex-shrink-0 flex flex-col items-center justify-center text-xl relative"
             >
               <img
-                src="./images/mandeep dai.JPG"
+                src={slide.image}
                 alt="Slider"
-                className="w-full h-64 object-cover opacity-70"
+                className="w-full h-96 object-cover opacity-70"
               />
               <div className="absolute bottom-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded">
                 {slide.text}
@@ -114,7 +114,7 @@ const AboutUs = () => {
             {reasons.map((reason) => (
               <div
                 key={reason.id}
-                className="w-full flex-shrink-0 flex flex-col items-center justify-center text-xl relative p-6 bg-purple-800 rounded-md shadow-lg"
+                className="w-full flex-shrink-0 flex flex-col items-center justify-center text-xl relative p-6 bg-purple-1000 rounded-md shadow-lg"
               >
                 <h3 className="text-2xl font-bold">{reason.title}</h3>
                 <p className="mt-4 text-lg md:text-xl">{reason.description}</p>

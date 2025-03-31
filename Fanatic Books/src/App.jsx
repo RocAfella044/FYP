@@ -12,30 +12,32 @@ import Applayout from './Applayout'
 import Register from './Pages/Register'
 import Singlebook from './Pages/Singlebook'
 import { ToastContainer } from 'react-toastify';
+import {Provider} from 'react-redux'
+import mainstore from './store/mainstore'
 
 const App = () => {
   return (
-    <BrowserRouter>
-       <ToastContainer />
-      <Routes>
-        <Route path="/" element={<Applayout />} >
-        <Route index element={<Home />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/book/:type/:id" element={<Singlebook/>} />
-        <Route path="/search/:q" element={<Singlebook/>} />
-      
-        </Route>
-        
-        <Route path="/notification" element={<Notification />} />
+    <Provider store={mainstore}>
+      <BrowserRouter>
+        <ToastContainer />
+        <Routes>
+          <Route path="/" element={<Applayout />}>
+            <Route index element={<Home />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/book/:type/:id" element={<Singlebook />} />
+            <Route path="/search/:q" element={<Singlebook />} />
+          </Route>
+
+          <Route path="/notification" element={<Notification />} />
           <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
-      
-    </BrowserRouter>
-  )
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </BrowserRouter>
+    </Provider>
+  );
 }
 
 export default App
