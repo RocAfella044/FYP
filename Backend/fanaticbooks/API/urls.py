@@ -3,12 +3,10 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from django.conf import settings
 from .views import book_list
 from .views import user_signup, user_login,message
-from .views import ContactCreateView
-from .views import NewArrivalViewSet, AddNewArrivalView, TrendingListView, Getbook, SearchAPIView
 from rest_framework.routers import DefaultRouter
-from .views import CartViewSet
-from .views import AddTrendingView  
-from .views import CartItemDeleteView
+
+from .views import *
+
 
 
 router = DefaultRouter()
@@ -35,6 +33,8 @@ urlpatterns = [
     path('api/search/', SearchAPIView.as_view(), name="search"),
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.jwt')),
+    path('api/genres/', GenreListView.as_view(), name='genre-list'),
+
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

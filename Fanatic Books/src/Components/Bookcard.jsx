@@ -1,5 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
+
 const Bookcard = ({ book, type }) => {
   return (
     <Link to={`/book/${type}/${book.id}`}>

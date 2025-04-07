@@ -22,11 +22,16 @@ from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from .models import Book, Cart, Trending
+from .models import *
 from .serializers import CartSerializer
 from rest_framework.viewsets import ModelViewSet
 from .serializers import CartSerializer
 from .serializers import TrendingSerializer
+
+
+
+
+
 class CartViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Cart.objects.all()
@@ -302,4 +307,7 @@ class SearchAPIView(APIView):
         else:
             return Response({"error": "No search query provided"}, status=status.HTTP_400_BAD_REQUEST)
         
-    
+class GenreListView(APIView):
+    def get(self, request):
+        genres = Genre.objects.values_list('book_genre', flat=True).distinct()
+        return Response(genres)
