@@ -20,7 +20,7 @@ const Home = () => {
       .catch((error) => console.error('Error fetching books:', error));
 
     axios
-      .get('http://localhost:8000/api/new-arrivals/')
+      .get('http://localhost:8000/new-arrival/')
       .then((response) => setNewArrivals(response.data))
       .catch((error) => console.error('Error fetching new arrivals:', error));
 
@@ -37,10 +37,8 @@ const Home = () => {
   }, []);
 
   return (
-    
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-purple-200">
-    
-    <HeroSection/>  
+      <HeroSection />
 
       {/* Our Best Picks Section */}
       <section className="py-16 relative">

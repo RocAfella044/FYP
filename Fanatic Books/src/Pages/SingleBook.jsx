@@ -3,13 +3,29 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-
 const SingleBook = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    axios
+      .get(`http://127.0.0.1:8000/api/books/${id}/`)
+      .then((response) => {
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setBook(response.data[0]); // Extract the first item from the array
+        } else {
+          setError('Book not found');
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching book:', error);
+        setError('Failed to load book');
+        setLoading(false);
+      });
+  }, [id]);
   useEffect(() => {
     axios
       .get(`http://127.0.0.1:8000/api/books/${id}/`)

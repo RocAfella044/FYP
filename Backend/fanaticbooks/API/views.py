@@ -257,10 +257,18 @@ class ContactCreateView(generics.CreateAPIView):
 from .models import NewArrival
 from .serializers import NewArrivalSerializer
 
-class NewArrivalListView(generics.ListAPIView):
-    queryset = NewArrival.objects.all().order_by('-arrival_date')
-    serializer_class = NewArrivalSerializer
+# class NewArrivalListView(generics.ListAPIView):
+#     queryset = NewArrival.objects.all().order_by('-arrival_date')
+#     serializer_class = NewArrivalSerializer
 
+class NewArrivalViewSet(ModelViewSet):
+    http_method_names = ['get']
+    queryset = NewArrival.objects.all()
+    serializer_class = NewArrivalSerializer
+    permission_classes = [AllowAny]  # Allows non-authenticated users to view
+
+    
+    
 class AddNewArrivalView(APIView):
     def post(self, request):
         serializer = NewArrivalSerializer(data=request.data)
@@ -282,3 +290,16 @@ class AddTrendingView(APIView):
             return Response({"message": "Trending added!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class SearchAPIView(APIView):
+    def get(self, request):
+        query = request.GET.get('query', '')
+        print(query)
+        if query:
+            books = Book.objects.filter(book_name__icontains=query)
+            serializer = BookSerializer(books, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({"error": "No search query provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    

@@ -49,11 +49,12 @@ class ContactSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     book_name = serializers.CharField(source='book.book_name', read_only=True)
     book_price = serializers.IntegerField(source='book.book_price', read_only=True)
-    book_author = serializers.CharField(source='book.user.username', read_only=True)  # Assuming user is the author for now
+    book_author = serializers.CharField(source='book.user.username', read_only=True)  
+    book_image = serializers.ImageField(source='book.book_image', read_only=True)
 
     class Meta:
         model = Cart
-        fields = ['id', 'book', 'book_name', 'book_price', 'book_author', 'quantity']
+        fields = ['id', 'book','book_image', 'book_name', 'book_price', 'book_author', 'quantity']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -100,6 +101,5 @@ class TrendingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trending
         fields = ['id', 'book_name', 'book_desc', 'book_genre', 'book_genre_name', 'book_price', 'book_image', 'arrival_date']
-
 
 

@@ -4,7 +4,7 @@ from django.conf import settings
 from .views import book_list
 from .views import user_signup, user_login,message
 from .views import ContactCreateView
-from .views import NewArrivalListView, AddNewArrivalView, TrendingListView, Getbook
+from .views import NewArrivalViewSet, AddNewArrivalView, TrendingListView, Getbook, SearchAPIView
 from rest_framework.routers import DefaultRouter
 from .views import CartViewSet
 from .views import AddTrendingView  
@@ -13,6 +13,7 @@ from .views import CartItemDeleteView
 
 router = DefaultRouter()
 router.register(r'cart', CartViewSet, basename='cart')
+router.register(r'new-arrival', NewArrivalViewSet, basename='new-arrival')
 
 
 urlpatterns = [
@@ -27,10 +28,11 @@ urlpatterns = [
     # path('api/cart/add/', AddToCartView.as_view(), name="cart-add"),
     # path('api/cart/update/<int:cart_id>/', UpdateCartView.as_view(), name="cart-update"),
     # path('api/cart/remove/<int:cart_id>/', RemoveFromCartView.as_view(), name="cart-remove"),
-    path('api/new-arrivals/', NewArrivalListView.as_view(), name="new-arrival-list"),
+    # path('api/new-arrivals/', NewArrivalListView.as_view(), name="new-arrival-list"),
     path('api/new-arrivals/add/', AddNewArrivalView.as_view(), name="new-arrival-add"),
     path('api/trending/', TrendingListView.as_view(), name="trending-list"),
     path('api/trending/add/', AddTrendingView.as_view(), name="trending-add"),
+    path('api/search/', SearchAPIView.as_view(), name="search"),
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.jwt')),
     

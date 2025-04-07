@@ -5,7 +5,7 @@ class BookForm(forms.ModelForm):
     
     class Meta:
         model = Book
-        fields = ["user","book_name","book_desc","book_image"]
+        fields = ["book_name","book_desc","book_image"]
 
         labels = {
             'book_name': 'Enter name',

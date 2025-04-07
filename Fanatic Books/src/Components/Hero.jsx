@@ -10,38 +10,38 @@ const images = [
   {
     id: 2,
 
-    src: '/images/y.jpg ',
+    src: '/images/download.jpeg ',
     alt: 'Image 2',
   },
   {
     id: 3,
-    src: '/images/1.jpg ',
+    src: '/images/side.jpeg ',
     alt: 'Image 3',
   },
   {
     id: 4,
-    src: '/images/x.jpg ',
+    src: '/images/lake.jpeg ',
     alt: 'Image 4',
   },
   {
     id: 5,
-    src: '/images/ww.jpg ',
+    src: '/images/dow.jpeg ',
     alt: 'Image 5',
   },
   {
     id: 6,
 
-    src: '/images/sww.jpg  ',
+    src: '/images/gwin.jpeg  ',
     alt: 'Image 6',
   },
   {
     id: 7,
-    src: '/images/w.jpg ',
+    src: '/images/jok.jpeg ',
     alt: 'Image 7',
   },
   {
     id: 8,
-    src: '/images/mandala.png ',
+    src: '/images/mgk.jpeg ',
     alt: 'Image 8',
   },
 ];
@@ -98,7 +98,7 @@ export default function HeroSection() {
                         <img
                           src={image.src || '/placeholder.svg'}
                           alt={image.alt}
-                          className="object-cover aspect-square"
+                          className="object-cover aspect-square hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     </div>

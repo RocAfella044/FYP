@@ -1,6 +1,6 @@
-import React from 'react'
-import {Link} from 'react-router-dom'
-const Bookcard = ({book, type}) => {
+import React from 'react';
+import { Link } from 'react-router-dom';
+const Bookcard = ({ book, type }) => {
   return (
     <Link to={`/book/${type}/${book.id}`}>
       <div
@@ -19,9 +19,10 @@ const Bookcard = ({book, type}) => {
 
         <div className="p-4">
           <h3 className="text-lg font-bold text-gray-700">{book.book_name}</h3>
-          <p className="text-sm text-gray-500 line-clamp-2"> {book.book_desc}</p>
-
-        
+          <p className="text-sm text-gray-500 line-clamp-2">
+            {' '}
+            {book.book_desc}
+          </p>
 
           {/* Display Book Price */}
           {book.book_price !== null && (
@@ -33,6 +34,6 @@ const Bookcard = ({book, type}) => {
       </div>
     </Link>
   );
-}
+};
 
-export default Bookcard
+export default Bookcard;

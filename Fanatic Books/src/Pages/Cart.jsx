@@ -130,7 +130,7 @@ const BookCartPage = () => {
                           <img
                             src={
                               item.book_image
-                                ? `http://127.0.0.1:8000${item.book_image}`
+                                ? `${item.book_image}`
                                 : '/default-image.jpg'
                             }
                             alt={item.book_name}
@@ -278,9 +278,12 @@ const BookCartPage = () => {
               <p className="text-purple-300 mb-6">
                 Discover books to add to your collection
               </p>
-              <button onClick= { ()=>{
-                navigate('/shop');
-              } } className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300">
+              <button
+                onClick={() => {
+                  navigate('/shop');
+                }}
+                className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300"
+              >
                 Browse Books
               </button>
             </div>
