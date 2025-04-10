@@ -3,8 +3,11 @@ import { NavLink, Link } from 'react-router-dom';
 import { CiBellOn } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
 import Searchbar from '../Searchbar';
+import { useDispatch } from 'react-redux';
+import { closeSearchPage } from '../../store/slice/searchSlice';
 
 const Navbar = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = localStorage.getItem('access_token');
 
@@ -30,6 +33,7 @@ const Navbar = () => {
         <ul className="flex space-x-8 justify-between items-center w-full">
           <li>
             <NavLink
+              onClick={() => dispatch(closeSearchPage())}
               className={({ isActive }) =>
                 isActive ? 'text-purple-500' : 'hover:text-purple-600'
               }
@@ -40,6 +44,7 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
+              onClick={() => dispatch(closeSearchPage())}
               className={({ isActive }) =>
                 isActive ? 'text-purple-500' : 'hover:text-purple-600'
               }
@@ -50,6 +55,7 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
+              onClick={() => dispatch(closeSearchPage())}
               className={({ isActive }) =>
                 isActive ? 'text-purple-500' : 'hover:text-purple-600'
               }
@@ -60,6 +66,7 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
+              onClick={() => dispatch(closeSearchPage())}
               className={({ isActive }) =>
                 isActive ? 'text-purple-500' : 'hover:text-purple-600'
               }
@@ -70,6 +77,7 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
+              onClick={() => dispatch(closeSearchPage())}
               className={({ isActive }) =>
                 isActive ? 'text-purple-500' : 'hover:text-purple-600'
               }

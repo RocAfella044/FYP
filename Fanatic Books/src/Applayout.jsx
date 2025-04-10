@@ -8,6 +8,7 @@ import SearchPage from './Pages/Search'
 
 const Applayout = () => {
  const isSearched = useSelector((store) => store.SearchSlice.isSearchPageOn);
+ console.log(isSearched)
   return (
     <div>
       <Navbar />

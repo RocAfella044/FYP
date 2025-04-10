@@ -30,7 +30,7 @@ const App = () => {
             <Route path="/book/:type/:id" element={<Singlebook />} />
             {/* <Route path="/new-arrival/:id" element={<SingleBook />} />
             <Route path="/trending-books/:id" element={<SingleBook />} /> */}
-            <Route path="/search/:q" element={<Singlebook />} />
+            {/* <Route path="/search/:q" element={<Singlebook />} /> */}
           </Route>
 
           <Route path="/notification" element={<Notification />} />

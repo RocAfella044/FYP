@@ -44,7 +44,7 @@ const SingleBook = () => {
     const accessToken = localStorage.getItem('access_token'); // Retrieve the access token
 
     if (!accessToken) {
-      console.error('No access token found. User is not authenticated.');
+      toast.error('Please log in to add items to the cart.');
       return;
     }
 

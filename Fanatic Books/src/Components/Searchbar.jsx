@@ -17,6 +17,7 @@ const Searchbar = () => {
   const handleClickOutside = (e) => {
     if (inputRef.current && !inputRef.current.contains(e.target)) {
       setIsToggled(false);
+      
     }
   };
   useEffect(() => {
@@ -35,6 +36,12 @@ const Searchbar = () => {
       dispatch(openSearchPage());
     }
   }, [searchText, setSearchParam]);
+  useEffect(() => {
+    const currentSearch = searchParam.get('search') || '';
+    if (currentSearch === '') {
+      setSearchText('');
+    }
+  }, [searchParam]);
   return (
     <form className="relative sm:inline-block hidden">
       <input

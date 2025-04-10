@@ -387,7 +387,7 @@ const AboutUs = () => {
                   onClick={() => navigate('/shop')}
                   className="relative bg-gradient-to-r from-purple-700 to-purple-900 hover:from-purple-800 hover:to-purple-950 text-white px-8 py-4 rounded-lg text-xl font-medium transition duration-300 shadow-lg"
                 >
-                  Explore Our Collection
+                  Explore Our Books
                 </button>
               </div>
             </div>
