@@ -19,17 +19,18 @@ const Bookcard = ({ book, type }) => {
 
         <div className="p-4">
           <h3 className="text-lg font-bold text-gray-700">{book.book_name}</h3>
+          {book.book_author !== null && (
+            <p className="text-sm text-purple-700 font-semibold mt-2">
+              Author: {book.book_author}
+            </p>
+          )}
           <p className="text-sm text-gray-500 line-clamp-2">
             {' '}
             {book.book_desc}
           </p>
 
-          {/* Display Book Price */}
-          {book.book_price !== null && (
-            <p className="text-sm text-purple-700 font-semibold mt-2">
-              Price: NPR {book.book_price}
-            </p>
-          )}
+         
+          
         </div>
       </div>
     </Link>

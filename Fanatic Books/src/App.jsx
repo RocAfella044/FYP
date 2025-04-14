@@ -1,19 +1,20 @@
-import React from 'react'
-import Home from './Pages/Home'
+import React from 'react';
+import Home from './Pages/Home';
 
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import About from './Pages/About'
-import Cart from './Pages/Cart'
-import Contact from './Pages/Contact'
-import Shop from './Pages/Shop'
-import Login from './Pages/Login'
-import Notification from './Pages/Notification'
-import Applayout from './Applayout'
-import Register from './Pages/Register'
-import Singlebook from './Pages/Singlebook'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import About from './Pages/About';
+import Cart from './Pages/Cart';
+import Contact from './Pages/Contact';
+import Shop from './Pages/Shop';
+import Login from './Pages/Login';
+import Wishlist from './Pages/Wishlist';
+import Notification from './Pages/Notification';
+import Applayout from './Applayout';
+import Register from './Pages/Register';
+import Singlebook from './Pages/Singlebook';
 import { ToastContainer } from 'react-toastify';
-import {Provider} from 'react-redux'
-import mainstore from './store/mainstore'
+import { Provider } from 'react-redux';
+import mainstore from './store/mainstore';
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/book/:type/:id" element={<Singlebook />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             {/* <Route path="/new-arrival/:id" element={<SingleBook />} />
             <Route path="/trending-books/:id" element={<SingleBook />} /> */}
             {/* <Route path="/search/:q" element={<Singlebook />} /> */}
@@ -40,6 +42,6 @@ const App = () => {
       </BrowserRouter>
     </Provider>
   );
-}
+};
 
-export default App
+export default App;

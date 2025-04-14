@@ -311,3 +311,27 @@ class GenreListView(APIView):
     def get(self, request):
         genres = Genre.objects.values_list('book_genre', flat=True).distinct()
         return Response(genres)
+    
+from .models import WishlistItem
+from .serializers import WishlistItemSerializer
+
+
+class WishlistView(generics.ListCreateAPIView):
+    serializer_class = WishlistItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return WishlistItem.objects.filter(user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        book_id = request.data.get('book')
+        if not book_id:
+            return Response({'error': 'Book ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        book = Book.objects.get(id=book_id)
+        wishlist_item, created = WishlistItem.objects.get_or_create(user=request.user, book=book)
+        if not created:
+            return Response({'message': 'Book already in wishlist.'}, status=status.HTTP_200_OK)
+
+        serializer = self.get_serializer(wishlist_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

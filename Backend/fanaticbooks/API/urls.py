@@ -4,7 +4,7 @@ from django.conf import settings
 from .views import book_list
 from .views import user_signup, user_login,message
 from rest_framework.routers import DefaultRouter
-
+from .views import WishlistView
 from .views import *
 
 
@@ -12,6 +12,7 @@ from .views import *
 router = DefaultRouter()
 router.register(r'cart', CartViewSet, basename='cart')
 router.register(r'new-arrival', NewArrivalViewSet, basename='new-arrival')
+
 
 
 urlpatterns = [
@@ -34,6 +35,7 @@ urlpatterns = [
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.jwt')),
     path('api/genres/', GenreListView.as_view(), name='genre-list'),
+    path('wishlist/', WishlistView.as_view(), name='wishlist'),
 
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

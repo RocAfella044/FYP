@@ -1,6 +1,9 @@
+{
+  /* Added hover effect here */
+}
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { CiBellOn } from 'react-icons/ci';
+import { CiHeart } from 'react-icons/ci'; // Updated icon import
 import { useNavigate } from 'react-router-dom';
 import Searchbar from '../Searchbar';
 import { useDispatch } from 'react-redux';
@@ -93,16 +96,16 @@ const Navbar = () => {
           <div>
             <Searchbar />
           </div>
-          <Link to="/notification" className="hover:text-purple-600">
+          <Link to="/wishlist" className="hover:text-purple-600">
             {' '}
-            {/* Added hover effect here */}
-            <CiBellOn size={30} />
+            {/* Updated link path */}
+            <CiHeart size={23} />
           </Link>
 
           {token ? (
             <button
               onClick={handleLogout}
-              className="hover:text-purple-600 text-white" // Added hover effect for the Logout button
+              className="hover:text-purple-600 text-white"
             >
               Logout
             </button>

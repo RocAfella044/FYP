@@ -1,5 +1,15 @@
 from django.contrib import admin
-from .models import Book, Genre, Contact, Cart,  NewArrival, Trending  # Ensure Cart model exists
+from .models import *
+
+
+admin.site.register(Book)
+admin.site.register(Genre)
+admin.site.register(Contact)
+admin.site.register(Cart)
+admin.site.register(NewArrival)
+admin.site.register(Trending)
+admin.site.register(WishlistItem)
+# admin.site.register(Genre)
 
 # Custom Admin classes (optional, but improves admin interface)
 class BookAdmin(admin.ModelAdmin):
