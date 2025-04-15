@@ -10,6 +10,43 @@ const SingleBook = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const [wishlist, setWishlist] = useState([]);
+   const [wishlistloading, setwishlistLoading] = useState(true);
+
+  const fetchWishlist = async () => {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      toast.error('You need to be logged in to view your wishlist.');
+      return;
+    }
+
+    try
+  
+    { setwishlistLoading(true);
+      const res = await axios.get('http://127.0.0.1:8000/wishlist/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (Array.isArray(res.data)) {
+        setWishlist(res.data);
+      } else {
+        setWishlist([]);
+        toast.error('Invalid response format for wishlist.');
+      }
+    } catch (err) {
+      console.error('Failed to load wishlist:', err);
+      toast.error('Failed to fetch wishlist.');
+    } finally {
+      setwishlistLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
 
   useEffect(() => {
     axios
@@ -152,7 +189,7 @@ const SingleBook = () => {
       </div>
     );
   }
-
+ const isBookInWishlist = wishlist.some((item) => item.book == id);
   return (
     <div className="bg-black min-h-screen py-12 px-4">
       <div className="max-w-6xl mx-auto border border-purple-900 rounded-xl overflow-hidden">
@@ -198,9 +235,14 @@ const SingleBook = () => {
               </button>
               <button
                 className="border-2 border-purple-600 text-purple-400 hover:bg-purple-900 px-6 py-3 rounded-md flex-1"
-                onClick={() => addToWishlist(book.id)}
+                onClick={() => { 
+                if (isBookInWishlist){
+                  return
+                }
+                  addToWishlist(book.id)}}
               >
-                Add to Wishlist
+                
+                {isBookInWishlist ? 'Already added' : 'Add to Wishlist'}
               </button>
             </div>
           </div>

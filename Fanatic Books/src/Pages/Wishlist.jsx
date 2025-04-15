@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Bookcard from '../Components/Bookcard';
+
 
 const WishlistPage = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -50,22 +52,10 @@ const WishlistPage = () => {
   return (
     <div className="bg-black min-h-screen text-white p-8">
       <h1 className="text-3xl font-bold mb-6 text-purple-400">Your Wishlist</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-8 flex flex-wrap justify-center gap-8 px-4">
         {wishlist.length > 0 ? (
-          wishlist.map((item) => (
-            <div
-              key={item.id}
-              className="border border-purple-800 p-4 rounded-lg"
-            >
-              <img
-                src={item.book_image || '/placeholder.svg'}
-                alt={item.book_name}
-                className="w-full h-64 object-cover rounded mb-4"
-              />
-              <h2 className="text-xl font-semibold">{item.book_name}</h2>
-              <p className="text-gray-300">{item.book_desc}</p>
-              <p className="text-purple-400 mt-2">NPR {item.book_price}</p>
-            </div>
+          wishlist.map((book) => (
+            <Bookcard key={book.id} type={'book'} book={book} />
           ))
         ) : (
           <p className="text-purple-200">No items in your wishlist.</p>

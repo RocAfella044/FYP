@@ -107,7 +107,8 @@ class WishlistItemSerializer(serializers.ModelSerializer):
     book_name = serializers.CharField(source='book.book_name')
     book_image = serializers.ImageField(source='book.book_image', allow_null=True)
     book_price = serializers.DecimalField(source='book.book_price', max_digits=10, decimal_places=2)
+    book_author = serializers.CharField(source='book.book_author', allow_null=True)
     
     class Meta:
         model = WishlistItem
-        fields = ['id', 'book', 'book_name', 'book_image', 'book_price']
+        fields = ['id', 'book', 'book_name', 'book_image', 'book_price', 'book_author']

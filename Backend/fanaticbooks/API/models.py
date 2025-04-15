@@ -71,7 +71,7 @@ class WishlistItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, null=True, blank=True)
     book_name = models.CharField(max_length=40, null=True, blank=True)
-    # book_author = models.CharField(max_length=40, null=True, blank=True)
+    book_author = models.CharField(max_length=40, null=True, blank=True)
     book_price = models.IntegerField(null=True, blank=True)
     book_image = models.ImageField(upload_to='book_images', null=True, blank=True)
 
