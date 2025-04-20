@@ -23,10 +23,11 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .models import *
+from .serializers import WishlistPostSerializer
 from .serializers import CartSerializer
 from rest_framework.viewsets import ModelViewSet
 from .serializers import CartSerializer
-from .serializers import TrendingSerializer
+
 
 
 
@@ -259,41 +260,11 @@ class ContactCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save()
         
-from .models import NewArrival
-from .serializers import NewArrivalSerializer
 
-# class NewArrivalListView(generics.ListAPIView):
-#     queryset = NewArrival.objects.all().order_by('-arrival_date')
-#     serializer_class = NewArrivalSerializer
-
-class NewArrivalViewSet(ModelViewSet):
-    http_method_names = ['get']
-    queryset = NewArrival.objects.all()
-    serializer_class = NewArrivalSerializer
-    permission_classes = [AllowAny]  # Allows non-authenticated users to view
 
     
     
-class AddNewArrivalView(APIView):
-    def post(self, request):
-        serializer = NewArrivalSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "New Arrival added!"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class TrendingListView(generics.ListAPIView):
-    queryset = Trending.objects.all().order_by('-arrival_date')
-    serializer_class = TrendingSerializer
-
-class AddTrendingView(APIView):
-    def post(self, request):
-        serializer = TrendingSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Trending added!"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SearchAPIView(APIView):
@@ -316,22 +287,78 @@ from .models import WishlistItem
 from .serializers import WishlistItemSerializer
 
 
-class WishlistView(generics.ListCreateAPIView):
-    serializer_class = WishlistItemSerializer
+# class WishlistView(generics.ListCreateAPIView):
+#     serializer_class = WishlistItemSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         return WishlistItem.objects.filter(user=self.request.user)
+
+# def post(self, request, *args, **kwargs):
+#     book_id = request.data.get('book')
+#     if not book_id:
+#         return Response({'error': 'Book ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#     try:
+#         book = Book.objects.get(id=book_id)
+#         wishlist_item, created = WishlistItem.objects.get_or_create(
+#             user=request.user, 
+#             book=book,
+#             defaults={
+#                 'book_name': book.book_name,
+#                 'book_author': book.book_author,
+#                 'book_price': book.book_price,
+#                 'book_image': book.book_image
+#             }
+#         )
+#         if not created:
+#             return Response({'message': 'Book already in wishlist.'}, status=status.HTTP_200_OK)
+
+#         serializer = self.get_serializer(wishlist_item)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     except Book.DoesNotExist:
+#         return Response({'error': 'Book not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class WishlistApiView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    def post(self, request, pk):
+        try:
+            book = get_object_or_404(Book, pk=pk)
+            print(book, '''''''''''''''''''''''''''''''''''''''''')
+            serialzer = WishlistPostSerializer(data=request.data, context={'request': request})
+            serialzer.is_valid(raise_exception=True)
+            serialzer.save(user=request.user, book=book)
+            return Response({"message": "Book added to wishlist"}, status=status.HTTP_201_CREATED)
+    
+        except Book.DoesNotExist:
+            return Response({"error": "Book not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    def delete(self, request, pk):
+        try:
+            wishlist_item = WishlistItem.objects.get(book=pk, user=request.user)
+            wishlist_item.delete()
+            return Response({"message": "Wishlist item deleted"}, status=status.HTTP_204_NO_CONTENT)
+        except WishlistItem.DoesNotExist:
+            return Response({"error": "Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+class WishlistGetApiView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pk=None):
+        if pk:
+            item = get_object_or_404(WishlistItem, pk=pk, user=request.user)
+            serializer = WishlistItemSerializer(item)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            items = WishlistItem.objects.filter(user=request.user)
+            serializer = WishlistItemSerializer(items, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get_queryset(self):
-        return WishlistItem.objects.filter(user=self.request.user)
-
-    def post(self, request, *args, **kwargs):
-        book_id = request.data.get('book')
-        if not book_id:
-            return Response({'error': 'Book ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        book = Book.objects.get(id=book_id)
-        wishlist_item, created = WishlistItem.objects.get_or_create(user=request.user, book=book)
-        if not created:
-            return Response({'message': 'Book already in wishlist.'}, status=status.HTTP_200_OK)
-
-        serializer = self.get_serializer(wishlist_item)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+# class WishlistItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     serializer_class = WishlistItemSerializer
+#     permission_classes = [IsAuthenticated]
+    
+#     def get_queryset(self):
+#         return WishlistItem.objects.filter(user=self.request.user)

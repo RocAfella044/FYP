@@ -37,32 +37,6 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.book.book_name} ({self.quantity})"
-
-class NewArrival(models.Model):
-    # user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    book_name = models.CharField(max_length=40, null=True)
-    book_desc = models.TextField(blank=True, null=True)
-    book_author = models.CharField(max_length=40, null=True, blank=True)
-    book_genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True, default=None)
-    book_price = models.IntegerField(null=True, blank=True)
-    book_image = models.ImageField(upload_to='book_images', null=True, blank=True)
-    arrival_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.book_name
-    
-class Trending(models.Model):
-    # user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    book_name = models.CharField(max_length=40, null=True)
-    book_desc = models.TextField(blank=True, null=True)
-    book_genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True, default=None)
-    book_price = models.IntegerField(null=True, blank=True)
-    book_image = models.ImageField(upload_to='book_images', null=True, blank=True)
-    arrival_date = models.DateTimeField(auto_now_add=True)
-    book_author = models.CharField(max_length=40, null=True, blank=True)
-
-    def __str__(self):
-        return self.book_name
     
 
 
@@ -76,5 +50,5 @@ class WishlistItem(models.Model):
     book_image = models.ImageField(upload_to='book_images', null=True, blank=True)
 
     def __str__(self):
-        return self.book_name
+     return self.book_name if self.book_name else f"Wishlist item {self.id}"
 

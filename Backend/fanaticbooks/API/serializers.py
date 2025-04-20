@@ -23,7 +23,7 @@ class ContactSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):from rest_framework import serializers
-from .models import Book, Genre, Contact, Cart, NewArrival, Trending
+from .models import Book, Genre, Contact, Cart
 
 
 # class BookSerializer(serializers.ModelSerializer):
@@ -62,45 +62,16 @@ class CartSerializer(serializers.ModelSerializer):
         return validated_data
 
 
-class NewArrivalSerializer(serializers.ModelSerializer):
-    book_genre_name = serializers.CharField(source='book_genre.book_genre', read_only=True)
-
+class WishlistPostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NewArrival
-        fields = ['id', 'book_name', 'book_desc', 'book_genre', 'book_genre_name', 'book_price', 'book_image', 'arrival_date']
-
-class TrendingSerializer(serializers.ModelSerializer):
-    book_genre_name = serializers.CharField(source='book_genre.book_genre', read_only=True)
-
-    class Meta:
-        model = Trending
-        fields = ['id', 'book_name', 'book_desc', 'book_genre', 'book_genre_name', 'book_price', 'book_image', 'arrival_date']
-
-
-    class Meta:
-        model = Cart
-        fields = ['id', 'book', 'quantity']
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-        Cart.objects.create(user=user, **validated_data)
-        return validated_data
+        model = WishlistItem
+        fields = ['id', 'book']
     
-
-
-class NewArrivalSerializer(serializers.ModelSerializer):
-    book_genre_name = serializers.CharField(source='book_genre.book_genre', read_only=True)
-
-    class Meta:
-        model = NewArrival
-        fields = ['id', 'book_name', 'book_desc', 'book_genre', 'book_genre_name', 'book_price', 'book_image', 'arrival_date']
-
-class TrendingSerializer(serializers.ModelSerializer):
-    book_genre_name = serializers.CharField(source='book_genre.book_genre', read_only=True)
-
-    class Meta:
-        model = Trending
-        fields = ['id', 'book_name', 'book_desc', 'book_genre', 'book_genre_name', 'book_price', 'book_image', 'arrival_date']
+    def create(self, validated_data):
+        user = validated_data.pop('user')
+        book = validated_data.pop('book')
+        wishlist_item = WishlistItem.objects.create(user=user, book=book, **validated_data)
+        return wishlist_item
 
 
 class WishlistItemSerializer(serializers.ModelSerializer):

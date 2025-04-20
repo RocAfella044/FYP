@@ -10,8 +10,8 @@ const SingleBook = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-   const [wishlist, setWishlist] = useState([]);
-   const [wishlistloading, setwishlistLoading] = useState(true);
+  const [wishlist, setWishlist] = useState([]);
+  const [wishlistloading, setwishlistLoading] = useState(true);
 
   const fetchWishlist = async () => {
     const token = localStorage.getItem('access_token');
@@ -21,10 +21,9 @@ const SingleBook = () => {
       return;
     }
 
-    try
-  
-    { setwishlistLoading(true);
-      const res = await axios.get('http://127.0.0.1:8000/wishlist/', {
+    try {
+      setwishlistLoading(true);
+      const res = await axios.get('http://127.0.0.1:8000/wishlistitem/', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -98,9 +97,9 @@ const SingleBook = () => {
     }
 
     try {
-      const response = await axios.post(
-        'http://127.0.0.1:8000/wishlist/',
-        { book: bookId },
+      await axios.post(
+        `http://127.0.0.1:8000/wishlistitem/${bookId}/`, // <-- FIXED URL
+        {}, // no body needed
         {
           headers: {
             'Content-Type': 'application/json',
@@ -110,20 +109,17 @@ const SingleBook = () => {
       );
 
       toast.success('Book added to wishlist!');
+      fetchWishlist(); // refresh wishlist state
     } catch (error) {
       if (error.response?.status === 401 && !retry) {
         const refreshed = await refreshAccessToken();
         if (refreshed) return addToWishlist(bookId, true);
       }
 
-      // Log detailed error
-      console.error('Add to wishlist error:', {
-        data: error?.response?.data,
-        status: error?.response?.status,
-        message: error?.message,
-      });
-
-      // Show backend error message if available
+      console.error(
+        'Add to wishlist error:',
+        error?.response?.data || error.message
+      );
       const msg =
         error?.response?.data?.detail ||
         error?.response?.data?.error ||
@@ -189,7 +185,7 @@ const SingleBook = () => {
       </div>
     );
   }
- const isBookInWishlist = wishlist.some((item) => item.book == id);
+  const isBookInWishlist = wishlist.some((item) => item.book == id);
   return (
     <div className="bg-black min-h-screen py-12 px-4">
       <div className="max-w-6xl mx-auto border border-purple-900 rounded-xl overflow-hidden">
@@ -210,7 +206,9 @@ const SingleBook = () => {
 
           <div className="p-8 space-y-6">
             <h1 className="text-4xl font-bold text-white">{book.book_name}</h1>
-            <div className="text-gray-300 text-lg">Author: {book.book_author}</div>
+            <div className="text-gray-300 text-lg">
+              Author: {book.book_author}
+            </div>
             <div className="text-gray-300 text-lg">{book.book_desc}</div>
 
             <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-purple-900/50">
@@ -235,13 +233,13 @@ const SingleBook = () => {
               </button>
               <button
                 className="border-2 border-purple-600 text-purple-400 hover:bg-purple-900 px-6 py-3 rounded-md flex-1"
-                onClick={() => { 
-                if (isBookInWishlist){
-                  return
-                }
-                  addToWishlist(book.id)}}
+                onClick={() => {
+                  if (isBookInWishlist) {
+                    return;
+                  }
+                  addToWishlist(book.id);
+                }}
               >
-                
                 {isBookInWishlist ? 'Already added' : 'Add to Wishlist'}
               </button>
             </div>

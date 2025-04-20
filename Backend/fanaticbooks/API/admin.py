@@ -6,8 +6,6 @@ admin.site.register(Book)
 admin.site.register(Genre)
 admin.site.register(Contact)
 admin.site.register(Cart)
-admin.site.register(NewArrival)
-admin.site.register(Trending)
 admin.site.register(WishlistItem)
 # admin.site.register(Genre)
 
@@ -31,27 +29,14 @@ class CartAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "book__book_name")
     list_filter = ("user",)
 
-class NewArrivalAdmin(admin.ModelAdmin):
-    list_display = ("book_name", "book_genre", "book_price")
-    search_fields = ("book_name", "book_genre__book_genre")
-    list_filter = ("book_genre",)
-class TrendingAdmin(admin.ModelAdmin):
-    list_display = ("book_name", "book_genre", "book_price")
-    search_fields = ("book_name", "book_genre__book_genre")
-    list_filter = ("book_genre",)
 
-class MiscellaneousAdmin(admin.ModelAdmin):
-    list_display = ("book_name", "book_genre", "book_price")
-    search_fields = ("book_name", "book_genre__book_genre")
-    list_filter = ("book_genre",)
 # Register models with admin panel, handling duplicates
 models_with_admin = [
     (Book, BookAdmin),
     (Genre, GenreAdmin),
     (Contact, ContactAdmin),
     (Cart, CartAdmin),
-    (NewArrival, NewArrivalAdmin),
-    (Trending, TrendingAdmin),
+   
    
 ]
 
