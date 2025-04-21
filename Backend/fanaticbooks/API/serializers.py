@@ -83,3 +83,19 @@ class WishlistItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = WishlistItem
         fields = ['id', 'book', 'book_name', 'book_image', 'book_price', 'book_author']
+
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import Profile
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+    
+    # Allow updating fields that are normally read-only
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance

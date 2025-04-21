@@ -12,6 +12,8 @@ const SingleBook = () => {
   const [error, setError] = useState(null);
   const [wishlist, setWishlist] = useState([]);
   const [wishlistloading, setwishlistLoading] = useState(true);
+  const [cart, setCart] = useState([]);
+  const [cartLoading, setCartLoading] = useState(true);
 
   const fetchWishlist = async () => {
     const token = localStorage.getItem('access_token');
@@ -43,8 +45,39 @@ const SingleBook = () => {
     }
   };
 
+  const fetchCart = async () => {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      return;
+    }
+
+    try {
+      setCartLoading(true);
+      const response = await axios.get('http://127.0.0.1:8000/cart/', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (Array.isArray(response.data)) {
+        setCart(response.data);
+      } else {
+        setCart([]);
+        toast.error('Invalid response format for cart.');
+      }
+    } catch (err) {
+      console.error('Failed to load cart:', err);
+      // Don't show error toast for cart load failure to avoid disrupting the user experience
+    } finally {
+      setCartLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchWishlist();
+    fetchCart();
   }, []);
 
   useEffect(() => {
@@ -98,8 +131,8 @@ const SingleBook = () => {
 
     try {
       await axios.post(
-        `http://127.0.0.1:8000/wishlistitem/${bookId}/`, // <-- FIXED URL
-        {}, // no body needed
+        `http://127.0.0.1:8000/wishlistitem/${bookId}/`,
+        {},
         {
           headers: {
             'Content-Type': 'application/json',
@@ -109,7 +142,7 @@ const SingleBook = () => {
       );
 
       toast.success('Book added to wishlist!');
-      fetchWishlist(); // refresh wishlist state
+      fetchWishlist();
     } catch (error) {
       if (error.response?.status === 401 && !retry) {
         const refreshed = await refreshAccessToken();
@@ -148,6 +181,7 @@ const SingleBook = () => {
       );
 
       toast.success('Book added to cart successfully!');
+      fetchCart(); // Refresh cart after adding
     } catch (error) {
       if (error.response?.status === 401 && !retry) {
         const refreshed = await refreshAccessToken();
@@ -185,7 +219,10 @@ const SingleBook = () => {
       </div>
     );
   }
+
   const isBookInWishlist = wishlist.some((item) => item.book == id);
+  const isBookInCart = cart.some((item) => item.book == id);
+
   return (
     <div className="bg-black min-h-screen py-12 px-4">
       <div className="max-w-6xl mx-auto border border-purple-900 rounded-xl overflow-hidden">
@@ -226,10 +263,15 @@ const SingleBook = () => {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <button
-                className="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-md flex-1"
-                onClick={() => addToCart(book.id)}
+                className="border-2 border-purple-600 text-purple-400 hover:bg-purple-900 px-6 py-3 rounded-md flex-1"
+                onClick={() => {
+                  if (!isBookInCart) {
+                    addToCart(book.id);
+                  }
+                }}
+                disabled={isBookInCart}
               >
-                Add to Cart
+                {isBookInCart ? 'Already in Cart' : 'Add to Cart'}
               </button>
               <button
                 className="border-2 border-purple-600 text-purple-400 hover:bg-purple-900 px-6 py-3 rounded-md flex-1"

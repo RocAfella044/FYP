@@ -8,13 +8,11 @@ const BookCartPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Fetch cart data when the component mounts
   useEffect(() => {
     const fetchCartData = async () => {
       const accessToken = localStorage.getItem('access_token');
 
       if (!accessToken) {
-        console.error('No access token found. User is not authenticated.');
         setError('User not authenticated');
         setLoading(false);
         return;
@@ -28,19 +26,15 @@ const BookCartPage = () => {
           },
         });
 
-        setCart(response.data); // Set cart data in state
+        const processedCart = processCartItems(response.data);
+        setCart(processedCart);
       } catch (error) {
-        console.error(
-          'Error fetching cart:',
-          error.response?.data || error.message
-        );
-        setError(error.response?.data || 'Error fetching cart');
-
-        // If the token is expired (401 Unauthorized), try refreshing and retry fetching
         if (error.response?.status === 401) {
           console.log('Token expired. Attempting to refresh...');
-          await refreshAccessToken(); // Call function to refresh token
-          await fetchCartData(); // Retry after refreshing token
+          await refreshAccessToken();
+          await fetchCartData();
+        } else {
+          setError('Error fetching cart');
         }
       } finally {
         setLoading(false);
@@ -50,42 +44,90 @@ const BookCartPage = () => {
     fetchCartData();
   }, []);
 
-  // Update the quantity of an item in the cart
-  const updateQuantity = (id, amount) => {
-    const updatedCart = cart.map((item) =>
-      item.id === id
-        ? { ...item, quantity: Math.max(1, item.quantity + amount) }
-        : item
-    );
-    setCart(updatedCart);
-    fetch(`http://127.0.0.1:8000/api/cart/update/${id}/`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        quantity: updatedCart.find((item) => item.id === id).quantity,
-      }),
+  const processCartItems = (items) => {
+    const bookMap = {};
+
+    items.forEach((item) => {
+      const bookId = item.book_id || item.book;
+
+      if (bookMap[bookId]) {
+        bookMap[bookId].quantity += item.quantity;
+        bookMap[bookId].cartItemIds.push(item.id);
+      } else {
+        bookMap[bookId] = {
+          ...item,
+          cartItemIds: [item.id],
+        };
+      }
     });
+
+    return Object.values(bookMap);
   };
 
-  // Remove an item from the cart
+  const updateQuantity = async (bookId, amount) => {
+    const item = cart.find(
+      (item) => item.book_id === bookId || item.book === bookId
+    );
+    if (!item) return;
+
+    const newQuantity = item.quantity + amount;
+    if (newQuantity < 1) return;
+
+    try {
+      // Pick first cart item ID to update quantity
+      const firstItemId = item.cartItemIds[0];
+
+      await axios.patch(
+        `http://127.0.0.1:8000/cart/update/${firstItemId}/`,
+        { quantity: newQuantity },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          },
+        }
+      );
+
+      const updatedCart = cart.map((c) =>
+        c.book_id === bookId || c.book === bookId
+          ? { ...c, quantity: newQuantity }
+          : c
+      );
+      setCart(updatedCart);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    }
+  };
+
   const removeItem = async (id) => {
     try {
-      await fetch(`http://127.0.0.1:8000/cart/${id}/`, {
-        method: 'DELETE',
+      await axios.delete(`http://127.0.0.1:8000/cart/${id}/`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
         },
       });
-      setCart(cart.filter((item) => item.id !== id)); // Remove the item from the cart state
+
+      const item = cart.find((item) => item.cartItemIds.includes(id));
+      if (item) {
+        for (const dupId of item.cartItemIds) {
+          if (dupId !== id) {
+            await axios.delete(`http://127.0.0.1:8000/cart/${dupId}/`, {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+              },
+            });
+          }
+        }
+      }
+
+      setCart(cart.filter((item) => !item.cartItemIds.includes(id)));
     } catch (error) {
       console.error('Error removing item from cart:', error);
     }
   };
 
-  // Calculate the total price of all items in the cart
   const totalPrice = cart.reduce(
     (acc, item) => acc + item.book_price * item.quantity,
     0
@@ -111,7 +153,7 @@ const BookCartPage = () => {
             Your <span className="text-purple-300">Book</span> Collection
           </h1>
           <div className="bg-white/20 backdrop-blur-sm rounded-lg py-2 px-4">
-            <p className="text-white font-medium">{cart.length} items</p>
+            <p className="text-white font-medium">{cart.length} unique books</p>
           </div>
         </div>
 
@@ -121,7 +163,7 @@ const BookCartPage = () => {
               <div className="p-6">
                 {cart.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.book_id || item.book}
                     className="group relative mb-6 last:mb-0 bg-white/5 rounded-xl p-4 hover:bg-white/10 transition duration-300"
                   >
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -156,7 +198,9 @@ const BookCartPage = () => {
                       <div className="flex items-center gap-4 sm:ml-4">
                         <div className="flex items-center bg-white/10 rounded-lg overflow-hidden">
                           <button
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() =>
+                              updateQuantity(item.book_id || item.book, -1)
+                            }
                             className="px-3 py-2 text-white hover:bg-purple-600 transition"
                           >
                             <svg
@@ -173,7 +217,9 @@ const BookCartPage = () => {
                             </svg>
                           </button>
                           <button
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() =>
+                              updateQuantity(item.book_id || item.book, 1)
+                            }
                             className="px-3 py-2 text-white hover:bg-purple-600 transition"
                           >
                             <svg
@@ -196,7 +242,7 @@ const BookCartPage = () => {
                         </div>
 
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.cartItemIds[0])}
                           className="text-white/70 hover:text-red-400 transition"
                         >
                           <svg
@@ -224,7 +270,7 @@ const BookCartPage = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-center">
                   <div className="mb-4 sm:mb-0">
                     <p className="text-white/70">
-                      Total items:{' '}
+                      Total unique books:{' '}
                       <span className="font-bold text-white">
                         {cart.length}
                       </span>
@@ -279,9 +325,7 @@ const BookCartPage = () => {
                 Discover books to add to your collection
               </p>
               <button
-                onClick={() => {
-                  navigate('/shop');
-                }}
+                onClick={() => navigate('/shop')}
                 className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300"
               >
                 Browse Books

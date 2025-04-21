@@ -8,7 +8,7 @@ import Contact from './Pages/Contact';
 import Shop from './Pages/Shop';
 import Login from './Pages/Login';
 import Wishlist from './Pages/Wishlist';
-import Notification from './Pages/Notification';
+import Profile from './Pages/Profile';
 import Applayout from './Applayout';
 import Register from './Pages/Register';
 import Singlebook from './Pages/Singlebook';
@@ -26,16 +26,16 @@ const App = () => {
             <Route index element={<Home />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/about" element={<About />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/book/:type/:id" element={<Singlebook />} />
             <Route path="/wishlist" element={<Wishlist />} />
-            {/* <Route path="/new-arrival/:id" element={<SingleBook />} />
-            <Route path="/trending-books/:id" element={<SingleBook />} /> */}
-            {/* <Route path="/search/:q" element={<Singlebook />} /> */}
+            
+            
           </Route>
 
-          <Route path="/notification" element={<Notification />} />
+          {/* <Route path="/profile" element={<Profile />} /> */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

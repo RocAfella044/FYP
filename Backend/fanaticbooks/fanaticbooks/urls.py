@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from API.views import user_profile
 
 
 urlpatterns = [
@@ -26,6 +27,7 @@ urlpatterns = [
     path('', include('API.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),    # Add this line
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+     path('profile/', user_profile, name='user-profile'),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

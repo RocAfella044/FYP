@@ -1,6 +1,3 @@
-{
-  /* Added hover effect here */
-}
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { CiHeart } from 'react-icons/ci'; // Updated icon import
@@ -8,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Searchbar from '../Searchbar';
 import { useDispatch } from 'react-redux';
 import { closeSearchPage } from '../../store/slice/searchSlice';
+import { FaUser } from 'react-icons/fa'; // Added user icon import
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -97,18 +95,21 @@ const Navbar = () => {
             <Searchbar />
           </div>
           <Link to="/wishlist" className="hover:text-purple-600">
-            {' '}
-            {/* Updated link path */}
             <CiHeart size={23} />
           </Link>
 
           {token ? (
-            <button
-              onClick={handleLogout}
-              className="hover:text-purple-600 text-white"
-            >
-              Logout
-            </button>
+            <>
+              <Link to="/profile" className="hover:text-purple-600">
+                <FaUser size={20} />
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="hover:text-purple-600 text-white"
+              >
+                Logout
+              </button>
+            </>
           ) : (
             <>
               <Link to="/login" className="hover:text-purple-600">

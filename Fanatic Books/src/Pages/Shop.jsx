@@ -9,93 +9,140 @@ const Shop = () => {
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
   useEffect(() => {
-    // Fetch books
     axios
       .get('http://localhost:8000/api/books/')
-      .then((response) => {
-        setBooks(response.data);
-        setFilteredBooks(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching books:', error);
-      });
-
-    // Fetch genres
-    axios
-      .get('http://localhost:8000/api/genres/')
       .then((res) => {
-        const genreList = res.data.map((g) =>
-          typeof g === 'string' ? g : g.book_genre
-        );
-        setGenres(['All', ...genreList]);
+        setBooks(res.data);
+        setFilteredBooks(res.data);
       })
-      .catch((err) => {
-        console.error('Error fetching genres:', err);
-      });
+      .catch((err) => console.error('Error fetching books:', err));
+
+    // No need for a separate genre API — extract from books instead
   }, []);
 
+  // Extract genres from books dynamically
   useEffect(() => {
-    if (selectedGenre === 'All') {
-      setFilteredBooks(books);
-    } else {
-      const filtered = books.filter((book) => {
-        const bookGenre =
-          typeof book.genre === 'string' ? book.genre : book.genre?.book_genre;
-        return bookGenre?.toLowerCase() === selectedGenre.toLowerCase();
-      });
-      setFilteredBooks(filtered);
-    }
-  }, [selectedGenre, books]);
+    const uniqueGenres = Array.from(
+      new Set(books.map((book) => book.book_genre))
+    );
+    setGenres(['All', ...uniqueGenres]);
+  }, [books]);
 
-  const handleGenreSelect = (genre) => {
-    setSelectedGenre(genre);
-  };
+  useEffect(() => {
+    let filtered = books;
+
+    if (selectedGenre !== 'All') {
+      filtered = filtered.filter(
+        (book) => book.book_genre.toLowerCase() === selectedGenre.toLowerCase()
+      );
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter((book) =>
+        book.book_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    filtered = filtered.filter(
+      (book) =>
+        book.book_price >= priceRange[0] && book.book_price <= priceRange[1]
+    );
+
+    setFilteredBooks(filtered);
+  }, [selectedGenre, books, searchQuery, priceRange]);
 
   return (
-    <div className="bg-gradient-to-b from-black via-purple-900 to-white min-h-screen text-center">
-      <section className="py-16">
-        <h1 className="text-3xl md:text-4xl font-semibold text-white mt-6">
-          Pick for your enthusiastic mind
-        </h1>
-        <h2 className="mt-4 text-lg md:text-xl text-white">
-          Work less, Read More
-        </h2>
+    <div className="bg-gradient-to-b from-black via-purple-900 to-purple-100 min-h-screen py-16 px-6 text-white">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-2">Book Haven</h1>
+        <p className="text-center text-lg mb-10 text-purple-200">
+          Find your next favorite book
+        </p>
 
-        {/* Genre Filter Buttons */}
-        <div className="mt-10 mb-6 px-4">
-          <h3 className="text-xl text-white mb-4">Browse by Genre</h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            {genres.map((genre, index) => (
-              <button
-                key={index}
-                onClick={() => handleGenreSelect(genre)}
-                className={`px-4 py-2 rounded-full transition-all ${
-                  selectedGenre === genre
-                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30'
-                    : 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm'
-                }`}
-              >
-                {genre
-                  .replace(/_/g, ' ')
-                  .replace(/\b\w/g, (l) => l.toUpperCase())}
-              </button>
-            ))}
+        {/* Filters */}
+        <div className="mb-10 bg-white/10 backdrop-blur-md rounded-xl p-6 shadow-lg shadow-purple-400/30">
+          <div className="flex flex-col md:flex-row gap-6 justify-between items-center">
+            {/* Genre Filter */}
+            <div className="flex flex-wrap gap-3 justify-center">
+              {genres.map((genre, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedGenre(genre)}
+                  className={`px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                    selectedGenre === genre
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-300'
+                      : 'bg-white/10 text-white hover:bg-purple-500 hover:text-white'
+                  }`}
+                >
+                  {genre
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                </button>
+              ))}
+            </div>
+
+            {/* Search and Price */}
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <input
+                type="text"
+                placeholder="Search by name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-4 py-2 rounded-md text-black w-full md:w-64"
+              />
+
+              {/* Price Filter */}
+              {/* Price Filter with Slider */}
+              <div className="w-full max-w-xs text-white">
+                <label className="block mb-1 text-sm font-medium">
+                  Price Range: NPR {priceRange[0]} - NPR {priceRange[1]}
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="1000"
+                    step="10"
+                    value={priceRange[0]}
+                    onChange={(e) =>
+                      setPriceRange([parseInt(e.target.value), priceRange[1]])
+                    }
+                    className="w-full accent-purple-500"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1000"
+                    step="10"
+                    value={priceRange[1]}
+                    onChange={(e) =>
+                      setPriceRange([priceRange[0], parseInt(e.target.value)])
+                    }
+                    className="w-full accent-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Books Display */}
-        <div className="mt-8 flex flex-wrap justify-center gap-8 px-4">
+        {/* Books Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredBooks.length > 0 ? (
             filteredBooks.map((book) => (
-              <Bookcard key={book.id} type={'book'} book={book} />
+              <Bookcard key={book.id} book={book} type="book" />
             ))
           ) : (
-            <p className="text-gray-300">No books available in this genre.</p>
+            <div className="col-span-full text-center text-purple-200">
+              No books found matching your filters.
+            </div>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 };

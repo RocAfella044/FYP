@@ -4,7 +4,7 @@ from django.conf import settings
 from .views import book_list
 from .views import user_signup, user_login,message
 from rest_framework.routers import DefaultRouter
-# from .views import WishlistView
+from .views import user_profile
 from .views import *
 
 
@@ -23,6 +23,7 @@ urlpatterns = [
     path('message',message,name="message"),
     path('contact/', ContactCreateView.as_view(), name='contact-create'),
     path('cart/<int:cart_id>/', CartItemDeleteView.as_view(), name='cart-item-delete'),
+    path("cart/update/<int:cart_id>/", CartQuantityUpdateView.as_view(), name="cart-update"),
     # path('api/cart/', CartListView.as_view(), name="cart-list"),
     # path('api/cart/add/', AddToCartView.as_view(), name="cart-add"),
     # path('api/cart/update/<int:cart_id>/', UpdateCartView.as_view(), name="cart-update"),
@@ -36,6 +37,10 @@ urlpatterns = [
     path('wishlistitem/', WishlistGetApiView.as_view(), name='wishlist-list'),
     path('wishlistitem/<int:pk>/', WishlistApiView.as_view(), name='wishlist-item'),
     # path('wishlistitem/<int:pk>/', WishlistItemDetailView.as_view(), name='wishlist-detail'),
+    path('api/user/profile', user_profile, name='user-profile'),
+    
+    
+
 
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

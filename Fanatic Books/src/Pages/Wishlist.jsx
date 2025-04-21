@@ -216,7 +216,7 @@ const WishlistPage = () => {
   }
 
   return (
-    <div className="bg-black min-h-screen text-white p-8">
+    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-purple-800 ">
       <h1 className="text-3xl font-bold mb-6 text-purple-400">Your Wishlist</h1>
       <div className="mt-8 flex flex-wrap justify-center gap-8 px-4">
         {books.length > 0 ? (
