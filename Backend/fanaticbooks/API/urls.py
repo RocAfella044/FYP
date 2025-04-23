@@ -38,7 +38,7 @@ urlpatterns = [
     path('wishlistitem/', WishlistGetApiView.as_view(), name='wishlist-list'),
     path('wishlistitem/<int:pk>/', WishlistApiView.as_view(), name='wishlist-item'),
     # path('wishlistitem/<int:pk>/', WishlistItemDetailView.as_view(), name='wishlist-detail'),
-    path('api/user/profile', user_profile, name='user-profile'),
+    path('api/user/profile', views.user_profile, name='user_profile'),
     
     # path('api/initiate-payment/', views.initiate_khalti_payment, name='initiate_payment'),
     # path('api/verify-payment/', views.verify_khalti_payment, name='verify_payment'),

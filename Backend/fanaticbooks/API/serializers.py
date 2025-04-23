@@ -88,18 +88,34 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Profile
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['phone', 'address']
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(required=False)
+    
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['username', 'email', 'first_name', 'last_name', 'profile']
     
-    # Allow updating fields that are normally read-only
     def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', None)
+        
+        # Update User fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+        
+        # Update or create Profile
+        if profile_data:
+            profile, created = Profile.objects.get_or_create(user=instance)
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
+            
         return instance
-
 
 from rest_framework import serializers
 from .models import Rating, Comment

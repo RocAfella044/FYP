@@ -796,7 +796,7 @@ const SingleBook = () => {
         <div className="mb-8">
           <h3 className="text-xl text-purple-400 mb-4">
             Your Review{' '}
-            <span className="text-sm text-gray-400">(One review per user)</span>
+          
           </h3>
 
           {!isAuthenticated ? (

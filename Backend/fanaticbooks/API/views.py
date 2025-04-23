@@ -388,38 +388,45 @@ class WishlistGetApiView(APIView):
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import status
 from .serializers import UserProfileSerializer
-from .models import Profile
 from django.contrib.auth.models import User
+from .models import Profile
+from django.core.exceptions import ValidationError
 
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     user = request.user
-
+    
+    # Ensure user has a profile
+    profile, created = Profile.objects.get_or_create(user=user)
+    
     if request.method == 'GET':
-        # Return current user profile data
         serializer = UserProfileSerializer(user)
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        # Update user profile data
+        # Check if phone number already exists
+        profile_data = request.data.get('profile', {})
+        phone = profile_data.get('phone', '')
+        
+        if phone:
+            existing = Profile.objects.filter(phone=phone).exclude(user=user).first()
+            if existing:
+                return Response(
+                    {"profile": {"phone": ["This phone number is already in use."]}},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
-        
         if serializer.is_valid():
-            serializer.save()  # Save the updated user information
-            # Also update the Profile model if there are additional fields like phone/address
-            profile_data = request.data.get('profile', {})
-            profile, created = Profile.objects.get_or_create(user=user)
-            if 'phone' in profile_data:
-                profile.phone = profile_data['phone']
-            if 'address' in profile_data:
-                profile.address = profile_data['address']
-            profile.save()
-            return Response(serializer.data)
-        
-        return Response(serializer.errors, status=400)
-
+            try:
+                serializer.save()
+                return Response(serializer.data)
+            except ValidationError as e:
+                return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # from rest_framework.decorators import api_view, permission_classes
 # from rest_framework.permissions import IsAuthenticated

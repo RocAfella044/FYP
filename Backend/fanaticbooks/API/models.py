@@ -52,13 +52,48 @@ class WishlistItem(models.Model):
     def __str__(self):
      return self.book_name if self.book_name else f"Wishlist item {self.id}"
 
+from django.db import models
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.exceptions import ValidationError
+
+def validate_unique_phone(value):
+    if value and Profile.objects.filter(phone=value).exists():
+        raise ValidationError("This phone number is already in use.")
+    return value
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=20, blank=True)
+    phone = models.CharField(max_length=20, blank=True, validators=[validate_unique_phone])
     address = models.TextField(blank=True)
 
     def __str__(self):
         return f'{self.user.username} Profile'
+
+    def save(self, *args, **kwargs):
+        # Check for phone uniqueness only when the phone field has a value
+        if self.phone:
+            existing = Profile.objects.filter(phone=self.phone).exclude(user=self.user).first()
+            if existing:
+                raise ValidationError({"phone": "This phone number is already in use."})
+        super().save(*args, **kwargs)
+
+# Signal to create profile when a user is created
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+# Signal to save profile when user is saved
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    try:
+        instance.profile.save()
+    except Profile.DoesNotExist:
+        # Create profile if it doesn't exist
+        Profile.objects.create(user=instance)
+    
     
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
