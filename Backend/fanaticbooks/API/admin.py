@@ -7,6 +7,10 @@ admin.site.register(Genre)
 admin.site.register(Contact)
 admin.site.register(Cart)
 admin.site.register(WishlistItem)
+admin.site.register(Profile)
+admin.site.register(Rating)
+admin.site.register(Comment)
+
 # admin.site.register(Genre)
 
 # Custom Admin classes (optional, but improves admin interface)

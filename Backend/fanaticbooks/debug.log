@@ -1,0 +1,39 @@
+INFO 2025-04-23 10:35:20,773 autoreload Watching for file changes with StatReloader
+WARNING 2025-04-23 10:35:46,679 log Not Found: /api/initiate-payment/
+INFO 2025-04-23 10:38:17,884 autoreload Watching for file changes with StatReloader
+WARNING 2025-04-23 10:40:47,025 log Not Found: /api/initiate-payment/
+WARNING 2025-04-23 10:43:22,295 log Not Found: /api/initiate-payment/
+WARNING 2025-04-23 10:44:31,827 log Not Found: /api/initiate-payment/
+INFO 2025-04-23 10:46:44,066 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:46:45,853 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:46:50,067 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:46:52,082 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:47:00,167 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:47:01,916 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:48:33,107 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:49:01,977 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:49:04,145 autoreload Watching for file changes with StatReloader
+WARNING 2025-04-23 10:49:15,623 log Not Found: /api/cart/
+WARNING 2025-04-23 10:49:27,943 log Not Found: /api/cart/
+INFO 2025-04-23 10:49:48,038 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:49:50,168 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:50:22,191 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:50:24,070 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:50:28,393 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:50:30,185 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:50:36,930 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:50:38,932 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:50:46,829 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:50:48,445 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:50:57,361 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:50:59,216 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:51:36,683 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\urls.py changed, reloading.
+INFO 2025-04-23 10:51:38,586 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:51:45,375 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\views.py changed, reloading.
+INFO 2025-04-23 10:51:47,361 autoreload Watching for file changes with StatReloader
+WARNING 2025-04-23 10:51:50,227 log Not Found: /api/cart/
+INFO 2025-04-23 10:52:29,618 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\views.py changed, reloading.
+INFO 2025-04-23 10:52:31,713 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:52:37,210 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\API\models.py changed, reloading.
+INFO 2025-04-23 10:52:39,069 autoreload Watching for file changes with StatReloader
+INFO 2025-04-23 10:52:44,439 autoreload D:\FYP\fypeeeeee\fants\Backend\fanaticbooks\fanaticbooks\settings.py changed, reloading.

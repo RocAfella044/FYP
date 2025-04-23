@@ -421,89 +421,267 @@ def user_profile(request):
         return Response(serializer.errors, status=400)
 
 
-import json
-from django.shortcuts import redirect, render
-import uuid
-import requests
-# Create your views here.
-def home(request):
-    id = uuid.uuid4()
-    print(id)
-    return render(request,'myapp/index.html',{'uuid':id})
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# import uuid
+# import json
+# import requests
+# from django.conf import settings
 
-def initkhalti(request):
-    url = "https://a.khalti.com/api/v2/epayment/initiate/"
-    return_url = request.POST.get('return_url')
-    website_url = request.POST.get('return_url')
-    amount = request.POST.get('amount')
-    purchase_order_id = request.POST.get('purchase_order_id')
-
-
-    print("url",url)
-    print("return_url",return_url)
-    print("web_url",website_url)
-    print("amount",amount)
-    print("purchase_order_id",purchase_order_id)
-    payload = json.dumps({
-        "return_url": return_url,
-        "website_url": website_url,
-        "amount": amount,
-        "purchase_order_id": purchase_order_id,
-        "purchase_order_name": "test",
-        "customer_info": {
-        "name": "Bibek Dahal",
-        "email": "test@khalti.com",
-        "phone": "9800000001"
-        }
-    })
-
-    # put your own live secet for admin
-    headers = {
-        'Authorization': 'key b885cd9d8dc04eebb59e6f12190aoo90',
-        'Content-Type': 'application/json',
-    }
-
-    response = requests.request("POST", url, headers=headers, data=payload)
-    print(json.loads(response.text))
-
-    print(response.text)
-    new_res = json.loads(response.text)
-    # print(new_res['payment_url'])
-    print(type(new_res))
-    return redirect(new_res['payment_url'])
-    return redirect("home")
-
-def verifyKhalti(request):
-    url = "https://a.khalti.com/api/v2/epayment/lookup/"
-    if request.method == 'GET':
-        headers = {
-            'Authorization': 'key b885cd9d8dc04eebb59e6f12190ae017',
-            'Content-Type': 'application/json',
-        }
-        pidx = request.GET.get('pidx')
-        data = json.dumps({
-            'pidx':pidx
-        })
-        res = requests.request('POST',url,headers=headers,data=data)
-        print(res)
-        print(res.text)
-
-        new_res = json.loads(res.text)
-        print(new_res)
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def initiate_khalti_payment(request):
+#     try:
+#         data = request.data
+#         amount = data.get('amount')
         
-
-        if new_res['status'] == 'Completed':
-            # user = request.user
-            # user.has_verified_dairy = True
-            # user.save()
-            # perform your db interaction logic
-            pass
+#         url = "https://a.khalti.com/api/v2/epayment/initiate/"
         
-        # else:
-        #     # give user a proper error message
-        #     raise BadRequest("sorry ")
+#         payload = json.dumps({
+#             "return_url": f"{settings.FRONTEND_URL}/payment-verify",
+#             "website_url": settings.FRONTEND_URL,
+#             "amount": int(amount) * 100,  # Convert to paisa
+#             "purchase_order_id": str(uuid.uuid4()),
+#             "purchase_order_name": "Book Purchase",
+#             "customer_info": {
+#                 "name": request.user.get_full_name(),
+#                 "email": request.user.email,
+#                 "phone": request.user.phone if hasattr(request.user, 'phone') else "9800000000",
+#             }
+#         })
+        
+#         headers = {
+#             'Authorization': f'Key {settings.KHALTI_SECRET_KEY}',
+#             'Content-Type': 'application/json',
+#         }
+        
+#         response = requests.post(url, headers=headers, data=payload)
+#         response_data = response.json()
+        
+#         if response.status_code == 200:
+#             return Response({
+#                 'success': True,
+#                 'payment_url': response_data['payment_url']
+#             })
+#         return Response({
+#             'success': False,
+#             'message': 'Payment initiation failed'
+#         }, status=400)
+        
+#     except Exception as e:
+#         return Response({
+#             'success': False,
+#             'message': str(e)
+#         }, status=500)
 
-        return redirect('home')
+# @api_view(['POST'])
+# def verify_khalti_payment(request):
+#     try:
+#         pidx = request.data.get('pidx')
+#         if not pidx:
+#             return Response({
+#                 'success': False,
+#                 'message': 'Payment ID missing'
+#             }, status=400)
+        
+#         url = "https://a.khalti.com/api/v2/epayment/lookup/"
+#         headers = {
+#             'Authorization': f'Key {settings.KHALTI_SECRET_KEY}',
+#             'Content-Type': 'application/json',
+#         }
+        
+#         response = requests.post(url, headers=headers, data=json.dumps({'pidx': pidx}))
+#         response_data = response.json()
+        
+#         if response_data.get('status') == 'Completed':
+#             # Here you would create your order record
+#             return Response({
+#                 'success': True,
+#                 'transaction_id': response_data.get('transaction_id'),
+#                 'amount': response_data.get('amount') / 100
+#             })
+        
+#         return Response({
+#             'success': False,
+#             'message': response_data.get('detail', 'Payment verification failed')
+#         }, status=400)
+        
+#     except Exception as e:
+#         return Response({
+#             'success': False,
+#             'message': str(e)
+#         }, status=500)
+
+# Backend (Django) - views.py
+
+from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+
+from .models import Book, Rating, Comment
+from .serializers import RatingSerializer, CommentSerializer
+
+# --- RATINGS ---
+
+@api_view(['GET'])
+def get_book_ratings(request):
+    """Get all ratings for a specific book item."""
+    book_id = request.query_params.get('book_id')
+    if not book_id:
+        return Response({"detail": "book_id parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
     
+    book = get_object_or_404(Book, id=book_id)
+    ratings = Rating.objects.filter(book=book)
+    serializer = RatingSerializer(ratings, many=True)
+    return Response(serializer.data)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_book_rating(request):
+    """Create a new rating for a book (authenticated user)."""
+    book_id = request.data.get('book')
+    if not book_id:
+        return Response({"detail": "book ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    book = get_object_or_404(Book, id=book_id)
+    
+    # Create rating data with book and user
+    data = request.data.copy()  # Prepare data for serializer
+    
+    # Check if rating value is valid (1-5)
+    rating_value = data.get('value')
+    if not rating_value or not (1 <= int(rating_value) <= 5):
+        return Response({"detail": "Rating value must be between 1 and 5"}, status=status.HTTP_400_BAD_REQUEST)
         
+    # Check if user already rated this book
+    existing_rating = Rating.objects.filter(book=book, user=request.user).first()
+    if existing_rating:
+        # Update existing rating
+        existing_rating.value = int(rating_value)
+        existing_rating.save()
+        serializer = RatingSerializer(existing_rating)
+        return Response(serializer.data)
+    
+    serializer = RatingSerializer(data=data)
+    if serializer.is_valid():
+        try:
+            # Try to save with book and user association
+            rating = serializer.save(book=book, user=request.user)
+            # Include username in response
+            response_data = serializer.data
+            response_data['username'] = request.user.username
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            # This happens if there's a unique constraint violation
+            return Response(
+                {"detail": "You have already rated this book. Please try updating your rating instead."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def update_delete_rating(request, rating_id):
+    """Update or delete a rating."""
+    rating = get_object_or_404(Rating, id=rating_id)
+    
+    # Only allow users to update/delete their own ratings
+    if rating.user != request.user:
+        return Response(
+            {"detail": "You don't have permission to edit this rating."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    if request.method == 'PUT':
+        # Validate rating value
+        value = request.data.get('value')
+        if not value or not (1 <= int(value) <= 5):
+            return Response({"detail": "Rating value must be between 1 and 5"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        serializer = RatingSerializer(rating, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        rating.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# --- COMMENTS ---
+
+@api_view(['GET'])
+def get_book_comments(request):
+    """Get all comments for a specific book."""
+    book_id = request.query_params.get('book_id')
+    if not book_id:
+        return Response({"detail": "book_id parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    book = get_object_or_404(Book, id=book_id)
+    comments = Comment.objects.filter(book=book).order_by('-created_at')
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_book_comment(request):
+    """Create a new comment for a book (authenticated user)."""
+    book_id = request.data.get('book')
+    if not book_id:
+        return Response({"detail": "book ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    book = get_object_or_404(Book, id=book_id)
+    
+    # Create comment data with book and user
+    data = request.data.copy()
+    
+    # Validate comment text
+    if not data.get('text') or len(data.get('text').strip()) == 0:
+        return Response({"detail": "Comment text cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer = CommentSerializer(data=data)
+    if serializer.is_valid():
+        try:
+            # Save comment with book and user association
+            comment = serializer.save(book=book, user=request.user)
+            # Include username in response
+            response_data = serializer.data
+            response_data['username'] = request.user.username
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(
+                {"detail": f"Error creating comment: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def update_delete_comment(request, comment_id):
+    """Update or delete a comment."""
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    # Only allow users to update/delete their own comments
+    if comment.user != request.user:
+        return Response(
+            {"detail": "You don't have permission to edit this comment."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    if request.method == 'PUT':
+        # Validate comment text
+        if not request.data.get('text') or len(request.data.get('text').strip()) == 0:
+            return Response({"detail": "Comment text cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

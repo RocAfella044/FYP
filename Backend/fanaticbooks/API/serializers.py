@@ -99,3 +99,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+
+from rest_framework import serializers
+from .models import Rating, Comment
+
+class RatingSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Rating
+        fields = ['id', 'book', 'value', 'created_at', 'username']
+        
+    def get_username(self, obj):
+        return obj.user.username if obj.user else None
+
+class CommentSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Comment
+        fields = ['id', 'book', 'text', 'created_at', 'username']
+        
+    def get_username(self, obj):
+        return obj.user.username if obj.user else None

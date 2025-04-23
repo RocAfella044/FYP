@@ -6,6 +6,7 @@ from .views import user_signup, user_login,message
 from rest_framework.routers import DefaultRouter
 from .views import user_profile
 from .views import *
+from . import views
 
 
 
@@ -39,9 +40,21 @@ urlpatterns = [
     # path('wishlistitem/<int:pk>/', WishlistItemDetailView.as_view(), name='wishlist-detail'),
     path('api/user/profile', user_profile, name='user-profile'),
     
+    # path('api/initiate-payment/', views.initiate_khalti_payment, name='initiate_payment'),
+    # path('api/verify-payment/', views.verify_khalti_payment, name='verify_payment'),
+
+    path('ratings/', views.get_book_ratings, name='get-book-ratings'),
+    path('ratings/', views.create_book_rating, name='create-book-rating'),
+    path('ratings/<int:rating_id>/', views.update_delete_rating, name='update-delete-rating'),
     
-
-
+    # Comment URLs
+    path('api/current-user/', views.current_user, name='current_user'),
+    path('get_book_ratings/', views.get_book_ratings, name='get_book_ratings'),
+    path('get_book_comments/', views.get_book_comments, name='get_book_comments'),
+    path('create_book_rating/', views.create_book_rating, name='create_book_rating'),
+    path('update_delete_rating/<int:rating_id>/', views.update_delete_rating, name='update_delete_rating'),
+    path('create_book_comment/', views.create_book_comment, name='create_book_comment'),
+    path('update_delete_comment/<int:comment_id>/', views.update_delete_comment, name='update_delete_comment'),
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

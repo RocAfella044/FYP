@@ -132,24 +132,30 @@ const Home = () => {
           <div className="relative">
             <button
               className="absolute left-2 top-1/2 -translate-y-1/2 z-10 
-                bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white rounded-full p-3 
-                shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 
-                transition-all duration-200 group"
+                bg-gradient-to-r from-purple-600/80 to-indigo-600/80 backdrop-blur-md 
+                text-white rounded-full p-3.5 
+                shadow-[0_0_15px_rgba(168,85,247,0.5)] 
+                focus:outline-none focus:ring-2 focus:ring-purple-400 
+                transition-all duration-300 group hover:scale-110"
               onClick={() => scrollSlider('book-slider', 'left')}
+              aria-label="Scroll left"
             >
-              <ChevronLeft className="h-6 w-6 group-hover:-translate-x-1 transition-transform" />
-              <span className="absolute inset-0 rounded-full bg-purple-500/20 blur-md -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+              <ChevronLeft className="h-6 w-6 group-hover:-translate-x-1 transition-transform duration-300" />
+              <span className="absolute inset-0 rounded-full bg-purple-500/30 blur-xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></span>
             </button>
 
             <button
               className="absolute right-2 top-1/2 -translate-y-1/2 z-10 
-                bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white rounded-full p-3 
-                shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 
-                transition-all duration-200 group"
+                bg-gradient-to-r from-indigo-600/80 to-purple-600/80 backdrop-blur-md 
+                text-white rounded-full p-3.5 
+                shadow-[0_0_15px_rgba(168,85,247,0.5)] 
+                focus:outline-none focus:ring-2 focus:ring-purple-400 
+                transition-all duration-300 group hover:scale-110"
               onClick={() => scrollSlider('book-slider', 'right')}
+              aria-label="Scroll right"
             >
-              <ChevronRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
-              <span className="absolute inset-0 rounded-full bg-purple-500/20 blur-md -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+              <ChevronRight className="h-6 w-6 group-hover:translate-x-1 transition-transform duration-300" />
+              <span className="absolute inset-0 rounded-full bg-purple-500/30 blur-xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></span>
             </button>
 
             <div

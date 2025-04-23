@@ -179,3 +179,14 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
 }
+
+# Khalti sandbox configuration
+KHALTI_SECRET_KEY = 'fbe3d6d06f61488591e5dba76f8c43e9'  # Sandbox secret key from documentation
+KHALTI_PUBLIC_KEY = 'd9e87083e9ed42e2abf5fdd44acb475c'  # Replace with actual public key from test-admin.khalti.com
+KHALTI_API_URL = 'https://dev.khalti.com/api/v2/epayment/initiate/	'  # Sandbox API endpoint
+KHALTI_RETURN_URL = 'http://localhost:8000/payment/callback/'  # Callback URL after payment
+KHALTI_WEBSITE_URL = 'http://localhost:8000/'  # Merchant website URL
+
+KHALTI_PUBLIC_KEY = 'd9e87083e9ed42e2abf5fdd44acb475c'  # Replace with actual public key from test-admin.khalti.com
+KHALTI_SECRET_KEY = 'fbe3d6d06f61488591e5dba76f8c43e9'  # Sandbox secret key from documentation
+KHALTI_INITIATE_URL = 'https://khalti.com/api/v2/payment/initiate/'

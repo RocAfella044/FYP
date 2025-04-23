@@ -58,7 +58,7 @@ const Shop = () => {
   return (
     <div className="bg-gradient-to-b from-black via-purple-900 to-purple-100 min-h-screen py-16 px-6 text-white">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-2">Book Haven</h1>
+        <h1 className="text-4xl font-bold text-center mb-2">Fanatic books</h1>
         <p className="text-center text-lg mb-10 text-purple-200">
           Find your next favorite book
         </p>
@@ -97,6 +97,7 @@ const Shop = () => {
 
               {/* Price Filter */}
               {/* Price Filter with Slider */}
+              {/* Price Filter with Slider */}
               <div className="w-full max-w-xs text-white">
                 <label className="block mb-1 text-sm font-medium">
                   Price Range: NPR {priceRange[0]} - NPR {priceRange[1]}
@@ -107,20 +108,9 @@ const Shop = () => {
                     min="0"
                     max="1000"
                     step="10"
-                    value={priceRange[0]}
-                    onChange={(e) =>
-                      setPriceRange([parseInt(e.target.value), priceRange[1]])
-                    }
-                    className="w-full accent-purple-500"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="1000"
-                    step="10"
                     value={priceRange[1]}
                     onChange={(e) =>
-                      setPriceRange([priceRange[0], parseInt(e.target.value)])
+                      setPriceRange([0, parseInt(e.target.value)])
                     }
                     className="w-full accent-purple-500"
                   />

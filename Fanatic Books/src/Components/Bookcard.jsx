@@ -14,11 +14,13 @@ const Bookcard = ({ book, type }) => {
               : `http://127.0.0.1:8000${book.book_image}`
           }
           alt={book.book_name}
-          className="w-full h-60 object-cover"
+          className="w-full h-60 object-contain "
         />
 
         <div className="p-4">
-          <h3 className="text-lg font-bold text-gray-700">{book.book_name}</h3>
+          <h3 className="text-lg font-bold text-gray-700 line-clamp-1">
+            {book.book_name}
+          </h3>
           {book.book_author !== null && (
             <p className="text-sm text-purple-700 font-semibold mt-2">
               Author: {book.book_author}
@@ -28,9 +30,6 @@ const Bookcard = ({ book, type }) => {
             {' '}
             {book.book_desc}
           </p>
-
-         
-          
         </div>
       </div>
     </Link>
