@@ -163,6 +163,7 @@ const SingleBook = () => {
   };
 
   // Fetch comments with improved error handling
+  // Fetch comments with improved error handling
   const fetchComments = async () => {
     try {
       setCommentsLoading(true);
@@ -172,23 +173,7 @@ const SingleBook = () => {
 
       if (Array.isArray(response.data)) {
         setComments(response.data);
-
-        // Check if current user has already commented
-        if (isAuthenticated && username) {
-          const userCommentObj = response.data.find(
-            (c) => c.username === username
-          );
-          if (userCommentObj) {
-            setUserComment(userCommentObj);
-            setCommentText(userCommentObj.text);
-          } else {
-            setUserComment(null);
-            setCommentText('');
-          }
-        }
-      } else {
-        setComments([]);
-        setUserComment(null);
+        // ...other code
       }
     } catch (err) {
       console.error('Failed to load comments:', err);
@@ -794,10 +779,7 @@ const SingleBook = () => {
 
         {/* User Comment Section */}
         <div className="mb-8">
-          <h3 className="text-xl text-purple-400 mb-4">
-            Your Review{' '}
-          
-          </h3>
+          <h3 className="text-xl text-purple-400 mb-4">Your Review </h3>
 
           {!isAuthenticated ? (
             <div className="text-gray-400 bg-gray-900/50 p-4 rounded-lg border border-purple-900/50">
@@ -896,35 +878,33 @@ const SingleBook = () => {
           )}
         </div>
 
-        {/* Other Users' Comments */}
+        
+        {/* Other Reviews Section - Ensure comments are displayed regardless of login status */}
         <div>
           <h3 className="text-xl text-purple-400 mb-4">Other Reviews</h3>
 
           {commentsLoading ? (
             <div className="text-purple-400 py-4">Loading reviews...</div>
-          ) : comments.filter((comment) => comment.username !== username)
-              .length === 0 ? (
-            <p className="text-gray-400 py-4">No other reviews yet.</p>
+          ) : comments.length === 0 ? (
+            <p className="text-gray-400 py-4">No reviews yet.</p>
           ) : (
             <div className="space-y-6">
-              {comments
-                .filter((comment) => comment.username !== username)
-                .map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="border-t border-purple-900/50 pt-4"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="font-medium text-purple-400">
-                        {comment.username}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {formatDate(comment.created_at)}
-                      </div>
+              {comments.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="border-t border-purple-900/50 pt-4"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="font-medium text-purple-400">
+                      {comment.username}
                     </div>
-                    <div className="mt-2 text-white">{comment.text}</div>
+                    <div className="text-sm text-gray-500">
+                      {formatDate(comment.created_at)}
+                    </div>
                   </div>
-                ))}
+                  <div className="mt-2 text-white">{comment.text}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>
