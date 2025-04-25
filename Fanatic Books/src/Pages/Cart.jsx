@@ -1,12 +1,41 @@
+'use client';
+
 import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const BookCartPage = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const navigate = useNavigate();
+
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        console.error('No refresh token available.');
+        navigate('/login'); // Redirect to login if no refresh token
+        return;
+      }
+
+      const response = await axios.post('http://127.0.0.1:8000/auth/refresh/', {
+        refresh: refreshToken,
+      });
+
+      const { access } = response.data;
+      localStorage.setItem('access_token', access);
+      console.log('Access token refreshed successfully.');
+      return true;
+    } catch (error) {
+      console.error('Failed to refresh access token:', error);
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      navigate('/login'); // Redirect to login on refresh failure
+      return false;
+    }
+  };
 
   useEffect(() => {
     const fetchCartData = async () => {
@@ -31,8 +60,10 @@ const BookCartPage = () => {
       } catch (error) {
         if (error.response?.status === 401) {
           console.log('Token expired. Attempting to refresh...');
-          await refreshAccessToken();
-          await fetchCartData();
+          const refreshed = await refreshAccessToken();
+          if (refreshed) {
+            await fetchCartData();
+          }
         } else {
           setError('Error fetching cart');
         }
@@ -128,6 +159,21 @@ const BookCartPage = () => {
     }
   };
 
+  const handleProceedToPayment = () => {
+    setShowPaymentPopup(true);
+  };
+
+  const closePaymentPopup = () => {
+    setShowPaymentPopup(false);
+  };
+
+  const handleStripePayment = () => {
+    // Here you would integrate with Stripe API
+    console.log('Processing payment with Stripe...');
+    // After successful payment, you might redirect or show confirmation
+    closePaymentPopup();
+  };
+
   const totalPrice = cart.reduce(
     (acc, item) => acc + item.book_price * item.quantity,
     0
@@ -152,7 +198,7 @@ const BookCartPage = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
             Your <span className="text-purple-300">Book</span> Collection
           </h1>
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg py-2 px-4">
+          <div className="bg Matters arising from the identification of the subjects of the X Platform/20 backdrop-blur-sm rounded-lg py-2 px-4">
             <p className="text-white font-medium">{cart.length} unique books</p>
           </div>
         </div>
@@ -281,7 +327,10 @@ const BookCartPage = () => {
                     <p className="text-3xl font-bold text-white">
                       NPR {totalPrice.toFixed(2)}
                     </p>
-                    <button className="mt-4 bg-gradient-to-r from-purple-600 to-purple-800 text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300 flex items-center justify-center">
+                    <button
+                      onClick={handleProceedToPayment}
+                      className="mt-4 bg-gradient-to-r from-purple-600 to-purple-800 text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300 flex items-center justify-center"
+                    >
                       <span>Proceed to Payment</span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -334,6 +383,112 @@ const BookCartPage = () => {
           )}
         </div>
       </div>
+
+      {/* Payment Popup */}
+      {showPaymentPopup && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-fade-in-up">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-800">
+                  Payment Options
+                </h3>
+                <button
+                  onClick={closePaymentPopup}
+                  className="text-gray-500 hover:text-gray-700 transition"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-6">
+                <p className="text-gray-600 mb-4">
+                  Select your preferred payment method:
+                </p>
+
+                <div
+                  onClick={handleStripePayment}
+                  className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition mb-3"
+                >
+                  <div className="bg-gradient-to-r from-purple-600 to-purple-800 rounded-full p-2 mr-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800">
+                      Pay with Stripe
+                    </h4>
+                    <p className="text-sm text-gray-500">
+                      Secure credit/debit card payment
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-medium">
+                    NPR {totalPrice.toFixed(2)}
+                  </span>
+                </div>
+                <div className="border-t border-gray-200 my-2 pt-2 flex justify-between">
+                  <span className="font-medium text-gray-800">Total</span>
+                  <span className="font-bold text-gray-800">
+                    NPR {totalPrice.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleStripePayment}
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300 flex items-center justify-center"
+              >
+                <span>Pay with Stripe</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 ml-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

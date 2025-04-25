@@ -180,3 +180,13 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
+
+
+
+# Stripe settings
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51RHd9RFLaNcN5JAOhMD0Rc57F6mlcvPCja833IuHBNo5yvCVwopoGICqoEhNhOo0ncxcrfej34viwXj15YmNhx7600z0NcJd8d'
+STRIPE_SECRET_KEY = 'sk_test_51RHd9RFLaNcN5JAOvE6EqzpLaQ9drkdjVemkcgei3e1StN6fpJ6x4prRt9je1FfKUvzDJ8qluPBQ4vgxlqig7OCe00zamhZRCq'
+STRIPE_WEBHOOK_SECRET = 'whsec_your_webhook_secret'  # Get this from Stripe Dashboard
+FRONTEND_URL = 'http://localhost:3000'
+
+# Other settings...

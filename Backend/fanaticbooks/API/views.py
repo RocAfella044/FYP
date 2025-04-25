@@ -692,3 +692,15 @@ def update_delete_comment(request, comment_id):
     elif request.method == 'DELETE':
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    
+
+
+
+
+
+
+
+
+
+    
