@@ -139,3 +139,5 @@ class CommentSerializer(serializers.ModelSerializer):
         
     def get_username(self, obj):
         return obj.user.username if obj.user else None
+    
+    

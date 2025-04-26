@@ -694,13 +694,126 @@ def update_delete_comment(request, comment_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
+stripe.api_key = 'sk_test_51RHd9RFLaNcN5JAOvE6EqzpLaQ9drkdjVemkcgei3e1StN6fpJ6x4prRt9je1FfKUvzDJ8qluPBQ4vgxlqig7OCe00zamhZRCq'
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_checkout_session(request):
+    try:
+        cart_items = request.data.get('cartItems', [])
+        total_amount = request.data.get('total_amount', 0)
 
+        # Convert NPR to smallest currency unit (paisa)
+        amount_in_paisa = int(total_amount * 100)
 
+        # Create line items for Stripe
+        line_items = [
+            {
+                'price_data': {
+                    'currency': 'npr',
+                    'product_data': {
+                        'name': f'Book {item["book_id"]}',
+                    },
+                    'unit_amount': int(item['price'] * 100),
+                },
+                'quantity': item['quantity'],
+            }
+            for item in cart_items
+        ]
 
+        # Create checkout session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url='http://127.0.0.1:3000/success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url='http://127.0.0.1:3000/cart',
+        )
 
-
-
-
+        return JsonResponse({'sessionId': session.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
     
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_checkout_session(request):
+    try:
+        cart_items = request.data.get('cartItems', [])
+        total_amount = request.data.get('total_amount', 0)
+        
+        line_items = [
+            {
+                'price_data': {
+                    'currency': 'npr',
+                    'product_data': {
+                        'name': item.get('book_name', f'Book {item["book_id"]}'),
+                    },
+                    'unit_amount': int(item['price'] * 100),
+                },
+                'quantity': item['quantity'],
+            }
+            for item in cart_items
+        ]
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            customer_email=request.user.email,
+            metadata={
+                'user_id': request.user.id,
+                'cart_items': json.dumps(cart_items)
+            },
+            success_url='http://localhost:5173/cart?payment=success&session_id={CHECKOUT_SESSION_ID}',
+            cancel_url='http://localhost:5173/cart?payment=cancelled',
+        )
+
+        return JsonResponse({'sessionId': session.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_payment_details(request):
+    session_id = request.GET.get('session_id')
+    if not session_id:
+        return Response({'error': 'Session ID is required'}, status=400)
+    
+    try:
+        session = stripe.checkout.Session.retrieve(
+            session_id,
+            expand=['line_items', 'payment_intent.payment_method']
+        )
+        
+        payment_details = {
+            'id': session.id,
+            'amount_total': session.amount_total,
+            'customer_email': session.customer_email,
+            'created': session.created,
+            'line_items': session.line_items,
+            'payment_method_details': {
+                'card': {
+                    'brand': session.payment_intent.payment_method.card.brand,
+                    'last4': session.payment_intent.payment_method.card.last4
+                }
+            }
+        }
+        
+        return Response(payment_details)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def clear_cart(request):
+    try:
+        Cart.objects.filter(user=request.user).delete()
+        return Response({'message': 'Cart cleared successfully'}, status=200)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)

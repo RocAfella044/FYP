@@ -3,21 +3,96 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Initialize Stripe with your publishable key
+const stripePromise = loadStripe(
+  'pk_test_51RHd9RFLaNcN5JAOhMD0Rc57F6mlcvPCja833IuHBNo5yvCVwopoGICqoEhNhOo0ncxcrfej34viwXj15YmNhx7600z0NcJd8d'
+);
 
 const BookCartPage = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState(null);
   const navigate = useNavigate();
+   const query = new URLSearchParams(window.location.search);
+   const paymentStatus = query.get('payment');
+   const sessionId = query.get('session_id');
+
+  // Add this useEffect hook to your component
+  useEffect(() => {
+   
+    if (paymentStatus === 'success' && sessionId) {
+      // Immediately clean up the URL
+console.log('Payment successful, session ID:', sessionId);
+      // Fetch payment details
+      const fetchPaymentDetails = async () => {
+        try {
+          const response = await axios.get(
+            `http://127.0.0.1:8000/get-payment-details/?session_id=${sessionId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+              },
+            }
+          );
+          setPaymentDetails(response.data);
+          setPaymentSuccess(true);
+          console.log('Payment details:', response.data);
+          // Clear the cart after successful payment
+          await clearCart();
+                window.history.replaceState({}, document.title, '/cart');
+
+        } catch (error) {
+          console.error('Error fetching payment details:', error);
+        }
+      };
+
+      fetchPaymentDetails();
+    }
+  }, [query, paymentStatus, sessionId]);
+
+  // Check for payment success on page load
+  // useEffect(() => {
+  //   const query = new URLSearchParams(window.location.search);
+  //   const paymentStatus = query.get('payment');
+  //   const sessionId = query.get('session_id');
+
+  //   if (paymentStatus === 'success' && sessionId) {
+  //     fetchPaymentDetails(sessionId);
+  //   }
+  // }, []);
+
+  // const fetchPaymentDetails = async (sessionId) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://127.0.0.1:8000/get-payment-details/?session_id=${sessionId}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+  //         },
+  //       }
+  //     );
+  //     setPaymentDetails(response.data);
+  //     setPaymentSuccess(true);
+  //     clearCart();
+  //     window.history.replaceState({}, document.title, '/cart');
+  //   } catch (error) {
+  //     console.error('Error fetching payment details:', error);
+  //   }
+  // };
 
   const refreshAccessToken = async () => {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
       if (!refreshToken) {
         console.error('No refresh token available.');
-        navigate('/login'); // Redirect to login if no refresh token
-        return;
+        navigate('/login');
+        return false;
       }
 
       const response = await axios.post('http://127.0.0.1:8000/auth/refresh/', {
@@ -32,46 +107,48 @@ const BookCartPage = () => {
       console.error('Failed to refresh access token:', error);
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      navigate('/login'); // Redirect to login on refresh failure
+      navigate('/login');
       return false;
     }
   };
 
-  useEffect(() => {
-    const fetchCartData = async () => {
-      const accessToken = localStorage.getItem('access_token');
+  const fetchCartData = async () => {
+    const accessToken = localStorage.getItem('access_token');
 
-      if (!accessToken) {
-        setError('User not authenticated');
-        setLoading(false);
-        return;
-      }
+    if (!accessToken) {
+      setError('User not authenticated');
+      setLoading(false);
+      return;
+    }
 
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/cart/', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/cart/', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-        const processedCart = processCartItems(response.data);
-        setCart(processedCart);
-      } catch (error) {
-        if (error.response?.status === 401) {
-          console.log('Token expired. Attempting to refresh...');
-          const refreshed = await refreshAccessToken();
-          if (refreshed) {
-            await fetchCartData();
-          }
+      const processedCart = processCartItems(response.data);
+      setCart(processedCart);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        console.log('Token expired. Attempting to refresh...');
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          setError('Session refreshed. Please try again.');
         } else {
-          setError('Error fetching cart');
+          setError('Authentication failed. Please log in again.');
         }
-      } finally {
-        setLoading(false);
+      } else {
+        setError('Error fetching cart');
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchCartData();
   }, []);
 
@@ -105,7 +182,6 @@ const BookCartPage = () => {
     if (newQuantity < 1) return;
 
     try {
-      // Pick first cart item ID to update quantity
       const firstItemId = item.cartItemIds[0];
 
       await axios.patch(
@@ -159,19 +235,67 @@ const BookCartPage = () => {
     }
   };
 
+  const clearCart = async () => {
+    try {
+      await axios.delete('http://127.0.0.1:8000/cart/clear/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      setCart([]);
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
+  };
+
   const handleProceedToPayment = () => {
     setShowPaymentPopup(true);
   };
 
   const closePaymentPopup = () => {
     setShowPaymentPopup(false);
+    setPaymentProcessing(false);
   };
 
-  const handleStripePayment = () => {
-    // Here you would integrate with Stripe API
-    console.log('Processing payment with Stripe...');
-    // After successful payment, you might redirect or show confirmation
-    closePaymentPopup();
+  const handleStripePayment = async () => {
+    setPaymentProcessing(true);
+    try {
+      const stripe = await stripePromise;
+      const accessToken = localStorage.getItem('access_token');
+
+      const response = await axios.post(
+        'http://127.0.0.1:8000/create-checkout-session/',
+        {
+          cartItems: cart.map((item) => ({
+            book_id: item.book_id || item.book,
+            quantity: item.quantity,
+            price: item.book_price,
+            book_name: item.book_name,
+          })),
+          total_amount: totalPrice,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const { sessionId } = response.data;
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: sessionId,
+      });
+
+      if (error) {
+        console.error('Stripe redirect error:', error);
+        // Handle error
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      setError('Failed to process payment. Please try again.');
+      setPaymentProcessing(false);
+    }
   };
 
   const totalPrice = cart.reduce(
@@ -198,7 +322,7 @@ const BookCartPage = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
             Your <span className="text-purple-300">Book</span> Collection
           </h1>
-          <div className="bg Matters arising from the identification of the subjects of the X Platform/20 backdrop-blur-sm rounded-lg py-2 px-4">
+          <div className="bg-white/20 backdrop-blur-sm rounded-lg py-2 px-4">
             <p className="text-white font-medium">{cart.length} unique books</p>
           </div>
         </div>
@@ -384,14 +508,13 @@ const BookCartPage = () => {
         </div>
       </div>
 
-      {/* Payment Popup */}
       {showPaymentPopup && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-fade-in-up">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-gray-800">
-                  Payment Options
+                  Confirm Payment
                 </h3>
                 <button
                   onClick={closePaymentPopup}
@@ -418,38 +541,9 @@ const BookCartPage = () => {
             <div className="p-6">
               <div className="mb-6">
                 <p className="text-gray-600 mb-4">
-                  Select your preferred payment method:
+                  You will be redirected to Stripe to complete your payment.
                 </p>
-
-                <div
-                  onClick={handleStripePayment}
-                  className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition mb-3"
-                >
-                  <div className="bg-gradient-to-r from-purple-600 to-purple-800 rounded-full p-2 mr-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-800">
-                      Pay with Stripe
-                    </h4>
-                    <p className="text-sm text-gray-500">
-                      Secure credit/debit card payment
-                    </p>
-                  </div>
-                </div>
+                {error && <div className="text-red-500 mb-4">{error}</div>}
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg mb-6">
@@ -469,9 +563,14 @@ const BookCartPage = () => {
 
               <button
                 onClick={handleStripePayment}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300 flex items-center justify-center"
+                disabled={paymentProcessing}
+                className={`w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300 flex items-center justify-center ${
+                  paymentProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                <span>Pay with Stripe</span>
+                <span>
+                  {paymentProcessing ? 'Processing...' : 'Pay with Stripe'}
+                </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 ml-2"
@@ -484,6 +583,95 @@ const BookCartPage = () => {
                     clipRule="evenodd"
                   />
                 </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {paymentSuccess && paymentDetails && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-fade-in-up">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-800">
+                  Payment Successful!
+                </h3>
+                <button
+                  onClick={() => setPaymentSuccess(false)}
+                  className="text-gray-500 hover:text-gray-700 transition"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-6">
+                <p className="text-gray-600 mb-4">
+                  Thank you for your purchase! A receipt has been sent to{' '}
+                  {paymentDetails.customer_email}.
+                </p>
+
+                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-bold text-gray-800 mb-2">
+                    Order Summary
+                  </h4>
+                  {paymentDetails.line_items.data.map((item, index) => (
+                    <div key={index} className="flex justify-between mb-2">
+                      <span className="text-gray-600">
+                        {item.description} × {item.quantity}
+                      </span>
+                      <span className="font-medium">
+                        NPR {(item.amount_total / 100).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="border-t border-gray-200 my-2 pt-2 flex justify-between">
+                    <span className="font-bold text-gray-800">Total</span>
+                    <span className="font-bold text-gray-800">
+                      NPR {(paymentDetails.amount_total / 100).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-bold text-gray-800 mb-2">
+                    Payment Details
+                  </h4>
+                  <p className="text-gray-600 mb-1">
+                    <span className="font-medium">Card:</span> **** **** ****{' '}
+                    {paymentDetails.payment_method_details.card.last4}
+                  </p>
+                  <p className="text-gray-600 mb-1">
+                    <span className="font-medium">Type:</span>{' '}
+                    {paymentDetails.payment_method_details.card.brand}
+                  </p>
+                  <p className="text-gray-600">
+                    <span className="font-medium">Date:</span>{' '}
+                    {new Date(paymentDetails.created * 1000).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setPaymentSuccess(false)}
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300"
+              >
+                Close
               </button>
             </div>
           </div>

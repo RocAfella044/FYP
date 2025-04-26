@@ -56,13 +56,15 @@ const reasons = [
     color: 'from-cyan-500 to-blue-500',
   },
   {
-    id: 4,
-    title: 'Community-Driven',
-    description:
-      'Join a thriving community of book lovers, share recommendations, and connect.', 
-    icon: <Users className="w-10 h-10" />,
-    color: 'from-emerald-500 to-green-500',
-  },
+
+  id: 4,
+  title: 'Unique Finds',
+  description:
+    'Discover hidden gems, indie titles, and books you won’t find in typical stores.',
+  icon: <Sparkles className="w-10 h-10" />,
+  color: 'from-fuchsia-500 to-violet-500',
+}
+
 ];
 
 const AboutUs = () => {
@@ -221,17 +223,14 @@ const AboutUs = () => {
               </div>
 
               <p className="text-xl leading-relaxed text-center text-purple-100">
-                We aim to create the most personalized and engaging online
-                bookstore experience. From bestsellers to rare second-hand
-                books, we bring them all to your fingertips. Our passion for
-                literature drives us to connect readers with stories that
-                inspire, educate, and transform lives.
+                "To make discovering and enjoying books easy, fun, and
+                accessible for everyone." 
               </p>
 
               <div className="mt-10 flex justify-center">
                 <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/20 text-purple-200 text-sm">
                   <Sparkles className="w-4 h-4 mr-2" />
-                  <span>Bringing books and readers together since 2020</span>
+                  <span>Bringing books and readers together since 2025</span>
                 </div>
               </div>
             </div>

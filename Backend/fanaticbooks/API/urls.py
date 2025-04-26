@@ -59,7 +59,9 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    
+    path('create-checkout-session/', views.create_checkout_session, name='create-checkout-session'),
+    path('get-payment-details/', views.get_payment_details, name='get-payment-details'),
+    path('cart/clear/', views.clear_cart, name='clear-cart'),
 ]
 
 urlpatterns += router.urls

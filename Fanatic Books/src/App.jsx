@@ -15,7 +15,7 @@ import Singlebook from './Pages/Singlebook';
 import { ToastContainer } from 'react-toastify';
 import { Provider } from 'react-redux';
 import mainstore from './store/mainstore';
-
+import BookCartPage from './Pages/Cart';
 const App = () => {
   return (
     <Provider store={mainstore}>
@@ -31,6 +31,7 @@ const App = () => {
             <Route path="/book/:type/:id" element={<Singlebook />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/cart" element={<BookCartPage />} />
           </Route>
 
           {/* <Route path="/profile" element={<Profile />} /> */}
