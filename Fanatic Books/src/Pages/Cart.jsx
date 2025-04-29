@@ -324,7 +324,7 @@ const BookCartPage = () => {
           const unitPrice = (item.amount_total / item.quantity / 100).toFixed(2);
           const totalPrice = (item.amount_total / 100).toFixed(2);
           doc.text(
-            `${item.description || 'Unknown Item'} x${item.quantity} - NPR ${unitPrice} = NPR ${totalPrice}`,
+            `${item.description || 'Unknown Item'} x${item.quantity} - USD ${unitPrice} = USD ${totalPrice}`,
             20,
             yPos
           );
@@ -333,7 +333,7 @@ const BookCartPage = () => {
 
         yPos += 10;
         doc.text(
-          `Total Amount: NPR ${(paymentDetails.amount_total / 100).toFixed(2)}`,
+          `Total Amount: USD ${(paymentDetails.amount_total / 100).toFixed(2)}`,
           20,
           yPos
         );
@@ -452,7 +452,7 @@ const BookCartPage = () => {
                         </div>
 
                         <div className="text-white font-bold text-xl">
-                          NPR {(item.book_price * item.quantity).toFixed(2)}
+                          USD {(item.book_price * item.quantity).toFixed(2)}
                         </div>
 
                         <button
@@ -493,7 +493,7 @@ const BookCartPage = () => {
                   <div className="text-right">
                     <p className="text-white/70 mb-1">Total amount:</p>
                     <p className="text-3xl font-bold text-white">
-                      NPR {totalPrice.toFixed(2)}
+                      USD {totalPrice.toFixed(2)}
                     </p>
                     <button
                       onClick={handleProceedToPayment}
@@ -594,13 +594,13 @@ const BookCartPage = () => {
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">
-                    NPR {totalPrice.toFixed(2)}
+                    USD {totalPrice.toFixed(2)}
                   </span>
                 </div>
                 <div className="border-t border-gray-200 my-2 pt-2 flex justify-between">
                   <span className="font-medium text-gray-800">Total</span>
                   <span className="font-bold text-gray-800">
-                    NPR {totalPrice.toFixed(2)}
+                    USD {totalPrice.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -675,14 +675,14 @@ const BookCartPage = () => {
                         {item.description} × {item.quantity}
                       </span>
                       <span className="font-medium">
-                        NPR {(item.amount_total / 100).toFixed(2)}
+                        USD {(item.amount_total / 100).toFixed(2)}
                       </span>
                     </div>
                   ))}
                   <div className="border-t border-gray-200 my-2 pt-2 flex justify-between">
                     <span className="font-bold text-gray-800">Total</span>
                     <span className="font-bold text-gray-800">
-                      NPR {(paymentDetails.amount_total / 100).toFixed(2)}
+                      USD {(paymentDetails.amount_total / 100).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -755,14 +755,14 @@ const BookCartPage = () => {
                         </td>
                         <td className="border p-2">{item.quantity || 1}</td>
                         <td className="border p-2">
-                          NPR{' '}
+                          USD{' '}
                           {(item.amount_total
                             ? item.amount_total / item.quantity / 100
                             : 0
                           ).toFixed(2)}
                         </td>
                         <td className="border p-2">
-                          NPR{' '}
+                          USD{' '}
                           {(item.amount_total ? item.amount_total / 100 : 0).toFixed(
                             2
                           )}
@@ -778,7 +778,7 @@ const BookCartPage = () => {
                   </tbody>
                 </table>
                 <p className="text-lg font-bold">
-                  Total Amount: NPR{' '}
+                  Total Amount: USD{' '}
                   {(paymentDetails.amount_total
                     ? paymentDetails.amount_total / 100
                     : 0
