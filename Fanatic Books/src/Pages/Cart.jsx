@@ -1,9 +1,11 @@
 'use client';
 
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Initialize Stripe with your publishable key
 const stripePromise = loadStripe(
@@ -19,17 +21,14 @@ const BookCartPage = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const navigate = useNavigate();
-   const query = new URLSearchParams(window.location.search);
-   const paymentStatus = query.get('payment');
-   const sessionId = query.get('session_id');
+  const invoiceRef = useRef(null);
+  const query = new URLSearchParams(window.location.search);
+  const paymentStatus = query.get('payment');
+  const sessionId = query.get('session_id');
 
-  // Add this useEffect hook to your component
   useEffect(() => {
-   
     if (paymentStatus === 'success' && sessionId) {
-      // Immediately clean up the URL
-console.log('Payment successful, session ID:', sessionId);
-      // Fetch payment details
+      console.log('Payment successful, session ID:', sessionId);
       const fetchPaymentDetails = async () => {
         try {
           const response = await axios.get(
@@ -43,48 +42,15 @@ console.log('Payment successful, session ID:', sessionId);
           setPaymentDetails(response.data);
           setPaymentSuccess(true);
           console.log('Payment details:', response.data);
-          // Clear the cart after successful payment
           await clearCart();
-                window.history.replaceState({}, document.title, '/cart');
-
+          window.history.replaceState({}, document.title, '/cart');
         } catch (error) {
           console.error('Error fetching payment details:', error);
         }
       };
-
       fetchPaymentDetails();
     }
   }, [query, paymentStatus, sessionId]);
-
-  // Check for payment success on page load
-  // useEffect(() => {
-  //   const query = new URLSearchParams(window.location.search);
-  //   const paymentStatus = query.get('payment');
-  //   const sessionId = query.get('session_id');
-
-  //   if (paymentStatus === 'success' && sessionId) {
-  //     fetchPaymentDetails(sessionId);
-  //   }
-  // }, []);
-
-  // const fetchPaymentDetails = async (sessionId) => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://127.0.0.1:8000/get-payment-details/?session_id=${sessionId}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-  //         },
-  //       }
-  //     );
-  //     setPaymentDetails(response.data);
-  //     setPaymentSuccess(true);
-  //     clearCart();
-  //     window.history.replaceState({}, document.title, '/cart');
-  //   } catch (error) {
-  //     console.error('Error fetching payment details:', error);
-  //   }
-  // };
 
   const refreshAccessToken = async () => {
     try {
@@ -289,13 +255,91 @@ console.log('Payment successful, session ID:', sessionId);
 
       if (error) {
         console.error('Stripe redirect error:', error);
-        // Handle error
       }
     } catch (error) {
       console.error('Payment error:', error);
       setError('Failed to process payment. Please try again.');
       setPaymentProcessing(false);
     }
+  };
+
+  const downloadInvoice = () => {
+    if (!invoiceRef.current || !paymentDetails) {
+      console.error('No invoice reference or payment details available.');
+      alert('Unable to generate invoice: No payment details found.');
+      return;
+    }
+
+    // Attempt to use html2canvas
+    html2canvas(invoiceRef.current, { scale: 2 })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`invoice-${paymentDetails.id || 'unknown'}.pdf`);
+      })
+      .catch((error) => {
+        console.error('Error with html2canvas, falling back to jsPDF:', error);
+        // Fallback to jsPDF-only method
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        doc.setFontSize(20);
+        doc.setTextColor(128, 0, 128);
+        doc.text('BookStore Invoice', pageWidth / 2, 20, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Invoice #: ${paymentDetails.id || 'N/A'}`, 20, 40);
+        doc.text(
+          `Date: ${
+            paymentDetails.created
+              ? new Date(paymentDetails.created * 1000).toLocaleString()
+              : 'N/A'
+          }`,
+          20,
+          50
+        );
+        doc.text(`Customer: ${paymentDetails.customer_email || 'N/A'}`, 20, 60);
+        doc.text(
+          `Payment Method: ${
+            paymentDetails.payment_method_details?.card
+              ? `${paymentDetails.payment_method_details.card.brand.toUpperCase()} **** ${
+                  paymentDetails.payment_method_details.card.last4
+                }`
+              : 'N/A'
+          }`,
+          20,
+          70
+        );
+
+        let yPos = 90;
+        doc.text('Order Summary:', 20, yPos);
+        yPos += 10;
+
+        paymentDetails.line_items?.data?.forEach((item) => {
+          const unitPrice = (item.amount_total / item.quantity / 100).toFixed(2);
+          const totalPrice = (item.amount_total / 100).toFixed(2);
+          doc.text(
+            `${item.description || 'Unknown Item'} x${item.quantity} - NPR ${unitPrice} = NPR ${totalPrice}`,
+            20,
+            yPos
+          );
+          yPos += 10;
+        }) || doc.text('No items available', 20, yPos);
+
+        yPos += 10;
+        doc.text(
+          `Total Amount: NPR ${(paymentDetails.amount_total / 100).toFixed(2)}`,
+          20,
+          yPos
+        );
+
+        doc.save(`invoice-${paymentDetails.id || 'unknown'}.pdf`);
+      });
   };
 
   const totalPrice = cart.reduce(
@@ -621,11 +665,6 @@ console.log('Payment successful, session ID:', sessionId);
 
             <div className="p-6">
               <div className="mb-6">
-                <p className="text-gray-600 mb-4">
-                  Thank you for your purchase! A receipt has been sent to{' '}
-                  {paymentDetails.customer_email}.
-                </p>
-
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
                   <h4 className="font-bold text-gray-800 mb-2">
                     Order Summary
@@ -667,12 +706,117 @@ console.log('Payment successful, session ID:', sessionId);
                 </div>
               </div>
 
-              <button
-                onClick={() => setPaymentSuccess(false)}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-800 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300"
+              {/* Hidden Invoice Template */}
+              <div
+                ref={invoiceRef}
+                className="absolute top-0 left-0 w-[210mm] p-8 bg-white text-black"
+                style={{ visibility: 'hidden' }}
               >
-                Close
-              </button>
+                <h1 className="text- QMessageBox font-bold text-purple-800 text-center mb-6">
+                  BookStore Invoice
+                </h1>
+                <div className="mb-4">
+                  <p>
+                    <strong>Invoice #:</strong> {paymentDetails.id || 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{' '}
+                    {paymentDetails.created
+                      ? new Date(paymentDetails.created * 1000).toLocaleString()
+                      : 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Customer:</strong>{' '}
+                    {paymentDetails.customer_email || 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Payment Method:</strong>{' '}
+                    {paymentDetails.payment_method_details?.card
+                      ? `${paymentDetails.payment_method_details.card.brand.toUpperCase()} **** ${
+                          paymentDetails.payment_method_details.card.last4
+                        }`
+                      : 'N/A'}
+                  </p>
+                </div>
+                <table className="w-full border-collapse mb-4">
+                  <thead>
+                    <tr className="bg-purple-200">
+                      <th className="border p-2 text-left">Item</th>
+                      <th className="border p-2 text-left">Quantity</th>
+                      <th className="border p-2 text-left">Price</th>
+                      <th className="border p-2 text-left">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paymentDetails.line_items?.data?.map((item, index) => (
+                      <tr key={index}>
+                        <td className="border p-2">
+                          {item.description || 'Unknown Item'}
+                        </td>
+                        <td className="border p-2">{item.quantity || 1}</td>
+                        <td className="border p-2">
+                          NPR{' '}
+                          {(item.amount_total
+                            ? item.amount_total / item.quantity / 100
+                            : 0
+                          ).toFixed(2)}
+                        </td>
+                        <td className="border p-2">
+                          NPR{' '}
+                          {(item.amount_total ? item.amount_total / 100 : 0).toFixed(
+                            2
+                          )}
+                        </td>
+                      </tr>
+                    )) || (
+                      <tr>
+                        <td colSpan="4" className="border p-2 text-center">
+                          No items available
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+                <p className="text-lg font-bold">
+                  Total Amount: NPR{' '}
+                  {(paymentDetails.amount_total
+                    ? paymentDetails.amount_total / 100
+                    : 0
+                  ).toFixed(2)}
+                </p>
+                <p className="text-center mt-4">
+                  Thank you for shopping with us!
+                </p>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={downloadInvoice}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-blue-500/30 transition duration-300 flex items-center justify-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Download Invoice
+                </button>
+                <button
+                  onClick={() => setPaymentSuccess(false)}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-purple-800 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-purple-500/30 transition duration-300"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -673,7 +673,7 @@ const SingleBook = () => {
               <div>
                 <h3 className="text-purple-400 text-sm">Price</h3>
                 <p className="text-white text-2xl font-bold">
-                  NPR {book.book_price}
+                  USD {book.book_price}
                 </p>
               </div>
             </div>

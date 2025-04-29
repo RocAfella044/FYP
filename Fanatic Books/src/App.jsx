@@ -20,7 +20,7 @@ const App = () => {
   return (
     <Provider store={mainstore}>
       <BrowserRouter>
-        <ToastContainer />
+        <ToastContainer autoClose={2000}/>
         <Routes>
           <Route path="/" element={<Applayout />}>
             <Route index element={<Home />} />

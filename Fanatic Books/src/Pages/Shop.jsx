@@ -100,7 +100,7 @@ const Shop = () => {
               {/* Price Filter with Slider */}
               <div className="w-full max-w-xs text-white">
                 <label className="block mb-1 text-sm font-medium">
-                  Price Range: NPR {priceRange[0]} - NPR {priceRange[1]}
+                  Price Range: USD {priceRange[0]} - USD {priceRange[1]}
                 </label>
                 <div className="flex items-center gap-2">
                   <input

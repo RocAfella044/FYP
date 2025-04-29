@@ -189,4 +189,23 @@ STRIPE_SECRET_KEY = 'sk_test_51RHd9RFLaNcN5JAOvE6EqzpLaQ9drkdjVemkcgei3e1StN6fpJ
 STRIPE_WEBHOOK_SECRET = 'whsec_your_webhook_secret'  # Get this from Stripe Dashboard
 FRONTEND_URL = 'http://localhost:3000'
 
-# Other settings...
+JAZZMIN_SETTINGS = {
+    
+    "site_title": "Fanatic Books",
+    "site_header": "Fanatic Books",
+    "site_brand": "Fanatic Books",
+
+    "welcome_sign": "Welcome to Fantic Books",
+    "copyright": "© 2025 FanaticBooks",
+
+    "site_logo_classes": "img-circle",
+
+    
+    "site_icon": "../media/book_images/logo.png",
+    
+   
+
+
+    "show_sidebar": True,
+    "show_ui_builder": True,
+}
