@@ -1,6 +1,5 @@
 from django.shortcuts import redirect, render
 
-# Create your views here.
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Book
@@ -43,7 +42,7 @@ class CartViewSet(ModelViewSet):
         context["request"] = self.request  # Include request context
         return context
     
-# views.py
+
 class CartItemDeleteView(APIView):
     def delete(self, request, cart_id):
         try:
@@ -78,39 +77,6 @@ class CartQuantityUpdateView(APIView):
 
     
 
-#     serializer_class = CartSerializer
-
-#     def get_queryset(self):
-#         return Cart.objects.filter(user=self.request.user)
-
-# class AddToCartView(APIView):
-#     def post(self, request):
-#         book_id = request.data.get("book_id")
-#         quantity = request.data.get("quantity", 1)
-
-#         book = get_object_or_404(Book, id=book_id)
-#         cart_item, created = Cart.objects.get_or_create(user=request.user, book=book)
-
-#         if not created:
-#             cart_item.quantity += quantity
-#             cart_item.save()
-
-#         return Response({"message": "Book added to cart"}, status=status.HTTP_201_CREATED)
-
-# class UpdateCartView(APIView):
-#     def patch(self, request, cart_id):
-#         cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
-#         cart_item.quantity = request.data.get("quantity", cart_item.quantity)
-#         cart_item.save()
-
-#         return Response({"message": "Cart updated successfully"}, status=status.HTTP_200_OK)
-
-# class RemoveFromCartView(APIView):
-#     def delete(self, request, cart_id):
-#         cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
-#         cart_item.delete()
-
-#         return Response({"message": "Item removed from cart"}, status=status.HTTP_204_NO_CONTENT)
 
 class Getbook(APIView):
     def get(self,request, book_id):
@@ -264,7 +230,7 @@ def signup_view(request):
     return render(request,'signup.html')
 
 
-    # print(request.POST)
+   
     
 
 def logout_view(request):
@@ -276,7 +242,7 @@ def message(request):
 class ContactCreateView(generics.CreateAPIView):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
-    permission_classes = [AllowAny]  # Allows non-authenticated users to submit
+    permission_classes = [AllowAny]  
 
     def perform_create(self, serializer):
         serializer.save()
@@ -308,37 +274,7 @@ from .models import WishlistItem
 from .serializers import WishlistItemSerializer
 
 
-# class WishlistView(generics.ListCreateAPIView):
-#     serializer_class = WishlistItemSerializer
-#     permission_classes = [IsAuthenticated]
 
-#     def get_queryset(self):
-#         return WishlistItem.objects.filter(user=self.request.user)
-
-# def post(self, request, *args, **kwargs):
-#     book_id = request.data.get('book')
-#     if not book_id:
-#         return Response({'error': 'Book ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-#     try:
-#         book = Book.objects.get(id=book_id)
-#         wishlist_item, created = WishlistItem.objects.get_or_create(
-#             user=request.user, 
-#             book=book,
-#             defaults={
-#                 'book_name': book.book_name,
-#                 'book_author': book.book_author,
-#                 'book_price': book.book_price,
-#                 'book_image': book.book_image
-#             }
-#         )
-#         if not created:
-#             return Response({'message': 'Book already in wishlist.'}, status=status.HTTP_200_OK)
-
-#         serializer = self.get_serializer(wishlist_item)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     except Book.DoesNotExist:
-#         return Response({'error': 'Book not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class WishlistApiView(APIView):
@@ -377,12 +313,7 @@ class WishlistGetApiView(APIView):
             serializer = WishlistItemSerializer(items, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-# class WishlistItemDetailView(generics.RetrieveUpdateDestroyAPIView):
-#     serializer_class = WishlistItemSerializer
-#     permission_classes = [IsAuthenticated]
-    
-#     def get_queryset(self):
-#         return WishlistItem.objects.filter(user=self.request.user)
+
 
 
 from rest_framework.decorators import api_view, permission_classes
@@ -428,99 +359,7 @@ def user_profile(request):
                 return Response(e.message_dict, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# from rest_framework.decorators import api_view, permission_classes
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.response import Response
-# import uuid
-# import json
-# import requests
-# from django.conf import settings
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def initiate_khalti_payment(request):
-#     try:
-#         data = request.data
-#         amount = data.get('amount')
-        
-#         url = "https://a.khalti.com/api/v2/epayment/initiate/"
-        
-#         payload = json.dumps({
-#             "return_url": f"{settings.FRONTEND_URL}/payment-verify",
-#             "website_url": settings.FRONTEND_URL,
-#             "amount": int(amount) * 100,  # Convert to paisa
-#             "purchase_order_id": str(uuid.uuid4()),
-#             "purchase_order_name": "Book Purchase",
-#             "customer_info": {
-#                 "name": request.user.get_full_name(),
-#                 "email": request.user.email,
-#                 "phone": request.user.phone if hasattr(request.user, 'phone') else "9800000000",
-#             }
-#         })
-        
-#         headers = {
-#             'Authorization': f'Key {settings.KHALTI_SECRET_KEY}',
-#             'Content-Type': 'application/json',
-#         }
-        
-#         response = requests.post(url, headers=headers, data=payload)
-#         response_data = response.json()
-        
-#         if response.status_code == 200:
-#             return Response({
-#                 'success': True,
-#                 'payment_url': response_data['payment_url']
-#             })
-#         return Response({
-#             'success': False,
-#             'message': 'Payment initiation failed'
-#         }, status=400)
-        
-#     except Exception as e:
-#         return Response({
-#             'success': False,
-#             'message': str(e)
-#         }, status=500)
-
-# @api_view(['POST'])
-# def verify_khalti_payment(request):
-#     try:
-#         pidx = request.data.get('pidx')
-#         if not pidx:
-#             return Response({
-#                 'success': False,
-#                 'message': 'Payment ID missing'
-#             }, status=400)
-        
-#         url = "https://a.khalti.com/api/v2/epayment/lookup/"
-#         headers = {
-#             'Authorization': f'Key {settings.KHALTI_SECRET_KEY}',
-#             'Content-Type': 'application/json',
-#         }
-        
-#         response = requests.post(url, headers=headers, data=json.dumps({'pidx': pidx}))
-#         response_data = response.json()
-        
-#         if response_data.get('status') == 'Completed':
-#             # Here you would create your order record
-#             return Response({
-#                 'success': True,
-#                 'transaction_id': response_data.get('transaction_id'),
-#                 'amount': response_data.get('amount') / 100
-#             })
-        
-#         return Response({
-#             'success': False,
-#             'message': response_data.get('detail', 'Payment verification failed')
-#         }, status=400)
-        
-#     except Exception as e:
-#         return Response({
-#             'success': False,
-#             'message': str(e)
-#         }, status=500)
-
-# Backend (Django) - views.py
 
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404

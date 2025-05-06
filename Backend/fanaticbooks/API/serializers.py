@@ -2,11 +2,7 @@ from rest_framework import serializers
 from .models import *
 
 
-# class BookSerializer(serializers.ModelSerializer):
-#     book_genre = serializers
-#     class Meta:
-#         model = Book
-#         fields = '__all__'
+
 
 class BookSerializer(serializers.ModelSerializer):
     book_genre = serializers.CharField(source='book_genre.book_genre', read_only=True)
@@ -26,11 +22,6 @@ class CartSerializer(serializers.ModelSerializer):from rest_framework import ser
 from .models import Book, Genre, Contact, Cart
 
 
-# class BookSerializer(serializers.ModelSerializer):
-#     book_genre = serializers
-#     class Meta:
-#         model = Book
-#         fields = '__all__'
 
 class BookSerializer(serializers.ModelSerializer):
     book_genre = serializers.CharField(source='book_genre.book_genre', read_only=True)
