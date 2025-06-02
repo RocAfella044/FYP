@@ -24,11 +24,7 @@ const slides = [
     text: 'Join a passionate community of book lovers!',
     image: './images/ww.jpg',
   },
-  {
-    id: 3,
-    text: 'Find second-hand books at amazing prices!',
-    image: 'https://source.unsplash.com/1600x900/?library',
-  },
+ 
 ];
 
 const reasons = [

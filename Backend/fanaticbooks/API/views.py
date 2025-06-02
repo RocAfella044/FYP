@@ -558,7 +558,7 @@ def create_checkout_session(request):
         line_items = [
             {
                 'price_data': {
-                    'currency': 'npr',
+                    'currency': 'USD',
                     'product_data': {
                         'name': f'Book {item["book_id"]}',
                     },
@@ -592,7 +592,7 @@ def create_checkout_session(request):
         line_items = [
             {
                 'price_data': {
-                    'currency': 'npr',
+                    'currency': 'USD',
                     'product_data': {
                         'name': item.get('book_name', f'Book {item["book_id"]}'),
                     },
